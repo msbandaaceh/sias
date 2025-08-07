@@ -6,6 +6,8 @@
  * @property CI_Model $model
  * @property CI_Model $api
  * @property CI_Encryption $encryption
+ * @property Apihelper $apihelper
+ * @property TanggalHelper $tanggalhelper
  * @property CI_Session $session
  * @property CI_Upload $upload
  * @property CI_Form_validation $form_validation

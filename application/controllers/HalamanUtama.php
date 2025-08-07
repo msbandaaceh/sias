@@ -14,19 +14,51 @@ class HalamanUtama extends MY_Controller
     public function page($halaman)
     {
         // Amanin nama file view agar tidak sembarang file bisa diload
-        $allowed = ['dashboard', 'validasi_sm', 'surat_masuk', 'disposisi', 'arsip_sm', 'arsip_sk', 'arsip_disposisi'];
+        $allowed = [
+            'dashboard',
+            'validasi_sm',
+            'surat_masuk',
+            'surat_keluar',
+            'disposisi',
+            'arsip_sm',
+            'arsip_sk',
+            'arsip_digital',
+            'laporan_sm',
+            'laporan_sk',
+            'laporan_disposisi',
+            'laporan_progres',
+            'laporan_arsip'
+        ];
 
         if (in_array($halaman, $allowed)) {
             $data['peran'] = $this->peran;
             $data['page'] = $halaman;
             if ($halaman == 'arsip_sm') {
                 $data['arsip_sm'] = $this->model->all_sm_data();
+            } elseif ($halaman == 'arsip_sk') {
+                $halaman = '500';
+            } elseif ($halaman == 'arsip_digital') {
+                $halaman = '500';
             } elseif ($halaman == 'dashboard') {
                 $data['jumlah_sm'] = count($this->model->all_sm_data());
             } elseif ($halaman == 'validasi_sm') {
                 $data['validasi'] = $this->model->validasi_surat_masuk($this->peran);
             } elseif ($halaman == 'surat_masuk') {
                 $data['surat_masuk'] = $this->model->register_surat_masuk($this->peran);
+            } elseif ($halaman == 'surat_keluar') {
+                $halaman = '500';
+            } elseif ($halaman == 'disposisi') {
+                $data['disposisi'] = $this->model->disposisi_surat_masuk($this->peran);
+            } elseif ($halaman == 'laporan_sm') {
+                $data['laporan_sm'] = $this->model->all_sm_data();
+            } elseif ($halaman == 'laporan_sk') {
+                $halaman = '500';
+            } elseif ($halaman == 'laporan_disposisi') {
+                $halaman = '500';
+            } elseif ($halaman == 'laporan_progres') {
+                $halaman = '500';
+            } elseif ($halaman == 'laporan_arsip') {
+                $halaman = '500';
             }
             $this->load->view($halaman, $data);
         } else {

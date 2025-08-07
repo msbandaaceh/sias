@@ -5,12 +5,12 @@
         <div class="container">
             <div class="row mb-2">
                 <div class="col-sm-6">
-                    <h1>Surat Masuk</h1>
+                    <h1>Disposisi Surat Masuk</h1>
                 </div>
                 <div class="col-sm-6">
                     <ol class="breadcrumb float-sm-right">
                         <li class="breadcrumb-item"><a href="#" data-page="dashboard">Surat</a></li>
-                        <li class="breadcrumb-item active">Surat Masuk</li>
+                        <li class="breadcrumb-item active">Disposisi Surat Masuk</li>
                     </ol>
                 </div>
             </div>
@@ -25,15 +25,17 @@
                     <div class="card">
                         <div class="card-body">
                             <?php
-                            if ($surat_masuk) {
+                            if ($disposisi) {
                                 $no = 1;
                                 ?>
                                 <table class="table">
                                     <tbody>
-                                        <?php foreach ($surat_masuk as $item) { ?>
+                                        <?php foreach ($disposisi as $item) { ?>
                                             <tr>
-                                                <td><?= $no; ?></td>
-                                                <td class="text-center" style="width: 10%">
+                                                <td>
+                                                    <?= $no; ?>
+                                                </td>
+                                                <td>
                                                     <span class="badge badge-success">
                                                         <div class="card-tools">
                                                             <?php
@@ -70,9 +72,9 @@
                                                     </span>
                                                 </td>
                                                 <td><a class="btn text-left text-primary" data-target="#detilModal"
-                                                        onclick="BukaDetilSurat('validasi', '<?= base64_encode($this->encryption->encrypt($item->id)) ?>')"
+                                                        onclick="BukaDetilSurat('disposisi', '<?= base64_encode($this->encryption->encrypt($item->id_sm)) ?>')"
                                                         data-toggle="modal"><i class="bx bx-edit-alt me-1"></i>
-                                                        <?php if ($item->status > 0) {
+                                                        <?php if ($item->dibaca) {
                                                             ?>
                                                             <?= $item->perihal; ?>
                                                             <?php
@@ -101,7 +103,7 @@
                                                 <i class="fas fa-info"></i>
                                                 Perhatian !!
                                             </h5>
-                                            Belum ada surat masuk untuk anda. Terimakasih.
+                                            Belum ada disposisi untuk anda. Terimakasih.
                                         </div>
                                     </div>
                                 </div>
@@ -112,7 +114,6 @@
                     </div>
                 </div>
             </div>
-        </div>
     </section>
 
     <div class="modal fade" id="detilModal" data-backdrop="static">
@@ -187,7 +188,6 @@
                                             <button onclick="TampilPelaksanaan()" id="TombolTambahPelaksanaan"
                                                 class="btn btn-sm btn-success">Tambah</button>
                                         </div>
-
                                         <br /><br />
                                         <div class="table-responsive" style="width: 100%;">
                                             <table class="table table-hover" id="tambah_pelaksanaan"

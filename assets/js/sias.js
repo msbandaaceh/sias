@@ -22,10 +22,53 @@ $(function () {
         $('#hapusSM').attr('href', 'hapus_sm/' + id);
     })
 
-    $("#tblSM").DataTable({
-        "responsive": true, "lengthChange": false, "autoWidth": false,
-        "buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"]
-    }).buttons().container().appendTo('#tblSM_wrapper .col-md-6:eq(0)');
+    $(document).on('submit', '#formLaporanSM', function (e) {
+        e.preventDefault(); // Cegah reload
+
+        let tgl_awal = $('#tgl_awal').val();
+        let tgl_akhir = $('#tgl_akhir').val();
+
+        console.log('Tgl Awal ' + tgl_awal + ', Tgl Akhir ' + tgl_akhir);
+        $.ajax({
+            url: 'halamansuratmasuk/filter_laporan_surat_masuk', // ganti sesuai route controller Anda
+            method: 'POST',
+            dataType: 'json',
+            data: {
+                tgl_awal: tgl_awal,
+                tgl_akhir: tgl_akhir
+            },
+            beforeSend: function () {
+                $('#tblLaporanSM tbody').html('<tr><td colspan="7" class="text-center">Memuat data...</td></tr>');
+            },
+            success: function (response) {
+                if (response.status == 'success') {
+                    let rows = '';
+                    let no = 1;
+                    if (response.data.length > 0) {
+                        response.data.forEach(item => {
+                            rows += `<tr>
+                                <td>${no++}</td>
+                                <td>${item.no_agenda}</td>
+                                <td>${item.no_sm}</td>
+                                <td>${item.pengirim}</td>
+                                <td>${item.perihal}</td>
+                                <td>${item.tgl_surat}</td>
+                                <td>${item.tgl_terima}</td>
+                            </tr>`;
+                        });
+                    } else {
+                        rows = `<tr><td colspan="7" class="text-center">Tidak ada data ditemukan.</td></tr>`;
+                    }
+                    $('#tblLaporanSM tbody').html(rows);
+                } else {
+                    alert(response.message || 'Gagal memuat data');
+                }
+            },
+            error: function () {
+                alert('Terjadi kesalahan saat memproses data.');
+            }
+        });
+    });
 
     $(document).on('submit', '#formSM', function (e) {
         e.preventDefault();
@@ -84,6 +127,7 @@ $(function () {
 });
 
 function loadPage(page) {
+    cekToken();
     $('#app').html('<div class="text-center p-4">Memuat...</div>');
     $.get("halamanutama/page/" + page, function (data) {
         $('#app').html(data);
@@ -92,11 +136,27 @@ function loadPage(page) {
     });
 }
 
+function cekToken() {
+    $.ajax({
+        url: 'cek_token',
+        type: 'POST',
+        dataType: 'json',
+        success: function (res) {
+            if (!res.valid) {
+                alert(res.message);
+                window.location.href = res.url;
+            }
+        }
+    });
+}
+
 function getNotifSuratMasuk() {
     var total = $('#total');
     var valid = $('#validasi');
     var surat_masuk = $('#surat_masuk');
     var disposisi = $('#disposisi');
+    var icon_sm = $('#surat_masuk_icon');
+    var icon_disposisi = $('#disposisi_icon');
     valid.empty();
     surat_masuk.empty();
     disposisi.empty();
@@ -135,6 +195,7 @@ function getNotifSuratMasuk() {
             if (Array.isArray(suratmasuk[0]) && suratmasuk[0].length > 0) {
                 notif += suratmasuk[0].length;
                 surat_masuk.append(suratmasuk[0].length);
+                icon_sm.append(suratmasuk[0].length);
             }
         } catch (e) {
             console.error("Error parsing surat masuk data:", e);
@@ -145,6 +206,7 @@ function getNotifSuratMasuk() {
             if (Array.isArray(dispo[0]) && dispo[0].length > 0) {
                 notif += dispo[0].length;
                 disposisi.append(dispo[0].length);
+                icon_disposisi.append(dispo[0].length);
             }
         } catch (e) {
             console.error("Error parsing disposisi data:", e);
@@ -451,13 +513,13 @@ function TampilRiwayatDisposisi() {
             if (riwayat.length > 0) {
                 div_surat.append('<div class="text-center"><h5>DISPOSISI SURAT</h5></div>');
                 riwayat.forEach(function (rwyt) {
-                    var ket = 'Catatan : -';
+                    var ket = 'Catatan Disposisi : -';
 
                     if (rwyt.catatan != null) {
-                        ket = 'Catatan : ' + rwyt.catatan;
+                        ket = 'Catatan Disposisi : <strong>' + rwyt.catatan + '</strong>';
                     }
 
-                    div_surat.append('<div>' + rwyt.nama + '<br>' + ket + '<br><button onclick="CetakDisposisi(' + rwyt.id + ')" class="btn btn-sm btn-success">Lembar Disposisi</button></div><hr/>');
+                    div_surat.append('<div>Tujuan Disposisi : <strong>' + rwyt.nama + '</strong><br>' + ket + '<br><button onclick="CetakDisposisi(' + rwyt.id + ')" class="btn btn-sm btn-success">Lembar Disposisi</button></div><hr/>');
                 });
             } else {
                 div_surat.append('<div class="text-center">Belum Ada Riwayat Disposisi</div>');
@@ -497,7 +559,9 @@ function TampilPelaksanaan() {
             $("#disposisi_").append(json.jenis_jabatan);
             $("#pelaksanaan_").append(json.jenis_progres);
             $("#pelaksanaan_id").val(json.pelaksanaan_id);
-            $("#jenis_jabatan").select2();
+            $("#jenis_jabatan").select2({
+                theme: 'bootstrap4'
+            });
             $('#tambah_pelaksanaan').show();
             $('.disposisi_surat').hide();
         } else if (json.st == 0) {
@@ -533,21 +597,20 @@ function SimpanPelaksanaan() {
         jenis_progres: jenis_progres
     }, function (response) {
         var json = jQuery.parseJSON(response);
-        console.log(json.success);
         if (json.success) {
             $('#detilModal').modal('hide');
             $('#tambah_pelaksanaan').hide();
             toastr.success(json.message);
             $('body').removeClass('modal-open');
             $('.modal-backdrop').remove();
-            $('#tombol_simpan_disposisi').attr("enabled", true);
+            $('#tombol_simpan_disposisi').removeAttr("disabled");
             //TampilProgresSurat();
             getNotifSuratMasuk();
-            loadPage('validasi_sm')
+            loadPage('validasi_sm');
         } else {
             toastr.error(json.message);
-            $('#tambah_pelaksanaan').hide();
-            $('#tombol_simpan_disposisi').attr("enabled", true);
+            getNotifSuratMasuk();
+            $('#tombol_simpan_disposisi').removeAttr("disabled");
         }
     });
 }
@@ -561,7 +624,7 @@ function SimpanPelaksanaanSM() {
 
     $('#tombol_simpan_disposisi').attr("disabled", true);
     //console.log(register_id+", "+pelaksanaan_id+", "+jenis_jabatan+", "+keterangan);
-    $.post('simpan_pelaksanaan_sm', {
+    $.post('simpan_pelaksanaan_surat_masuk', {
         pelaksanaan_id: pelaksanaan_id,
         jenis_progres: jenis_progres,
         jenis_jabatan: jenis_jabatan,
@@ -569,18 +632,18 @@ function SimpanPelaksanaanSM() {
         register_id: register_id
     }, function (response) {
         var json = jQuery.parseJSON(response);
-
-        if (json.st == 1) {
+        if (json.success) {
+            $('#detilModal').modal('hide');
             $('#tambah_pelaksanaan').hide();
-            $('#simpan_disposisi').attr("enabled", true);
-            TampilProgresSurat();
-            location.reload();
-        } else if (json.st == 0) {
-
-            $('#tambah_pelaksanaan').hide();
-            $('#simpan_disposisi').attr("enabled", true);
-            TampilProgresSurat();
-            location.reload();
+            $('body').removeClass('modal-open');
+            $('.modal-backdrop').remove();
+            toastr.success(json.message);
+            $('#tombol_simpan_disposisi').removeAttr("disabled");
+            getNotifSuratMasuk();
+        } else {
+            toastr.error(json.message);
+            getNotifSuratMasuk();
+            $('#tombol_simpan_disposisi').removeAttr("disabled");
         }
     });
 }

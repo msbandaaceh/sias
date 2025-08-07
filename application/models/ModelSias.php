@@ -1,5 +1,13 @@
 <?php
 
+/**
+ * @property CI_Session $session
+ * @property CI_DB_query_builder $db
+ * @property Apihelper $apihelper
+ * @property TanggalHelper $tanggalhelper
+ * @property CI_Encryption $encryption
+ */
+
 class ModelSias extends CI_Model
 {
     private $db_sso;
@@ -9,7 +17,7 @@ class ModelSias extends CI_Model
         parent::__construct();
 
         // Inisialisasi variabel private dengan nilai dari session
-        $this->db_sso = $this->config->item('sso_db');
+        $this->db_sso = config_item('sso_db');
     }
 
     private function add_audittrail($action, $title, $table, $descrip)
@@ -27,6 +35,16 @@ class ModelSias extends CI_Model
         ];
 
         $this->apihelper->post('api_audittrail', $params);
+    }
+
+    private function kirim_notif($data)
+    {
+        $params = [
+            'tabel' => 'sys_notif',
+            'data' => $data
+        ];
+
+        $this->apihelper->post('apiclient/simpan_data', $params);
     }
 
     public function cek_aplikasi()
@@ -53,7 +71,7 @@ class ModelSias extends CI_Model
     public function cek_peran()
     {
         $peran = '';
-        $query = $this->model->get_seleksi2('peran', 'userid', $this->session->userdata('userid'), 'hapus', '0');
+        $query = $this->get_seleksi2('peran', 'userid', $this->session->userdata('userid'), 'hapus', '0');
         if ($query->num_rows() > 0) {
             if ($query->row()->role == 'petugas')
                 $peran = 'petugas';
@@ -104,10 +122,18 @@ class ModelSias extends CI_Model
         return $this->db->select('*')->from('register_surat_masuk')->get()->result();
     }
 
+    public function disposisi_surat_masuk($jab_id)
+    {
+        $this->db->order_by('dibaca');
+        $this->db->order_by('id', 'DESC');
+        $this->db->where('disposisi', $jab_id);
+        return $this->db->select('*')->from('v_disposisi')->get()->result();
+    }
+
     public function surat_masuk($jab_id)
     {
         $this->db->order_by('id', 'DESC');
-        $this->db->where('dibaca', null);
+        $this->db->where('status', '0');
         $this->db->where('valid', '2');
         $this->db->where('tujuan_surat', $jab_id);
         return $this->db->select('*')->from('register_surat_masuk')->get()->result();
@@ -124,6 +150,14 @@ class ModelSias extends CI_Model
     public function all_sm_data()
     {
         $this->db->order_by('id', 'DESC');
+        return $this->db->select('*')->from('register_surat_masuk')->get()->result();
+    }
+
+    public function all_sm_data_filter($tgl_awal, $tgl_akhir)
+    {
+        $this->db->order_by('created_on', 'DESC');
+        $this->db->where('Date(created_on) >=', $tgl_awal);
+        $this->db->where('Date(created_on) <=', $tgl_akhir);
         return $this->db->select('*')->from('register_surat_masuk')->get()->result();
     }
 
@@ -198,7 +232,7 @@ class ModelSias extends CI_Model
 
         $tab_dispo = $this->get_seleksi('v_disposisi', 'id_sm', $id)->num_rows() > 0 ? 1 : 0;
 
-        if ($surat->valid == 2 && $status == 'validasi') {
+        if ($surat->valid == 2 && in_array($status, ['validasi', 'disposisi'])) {
             $cekDispo = $this->get_seleksi_disposisi($id, $this->session->userdata('jab_id'));
 
             $data_update = [
@@ -304,19 +338,16 @@ class ModelSias extends CI_Model
                     $pesan = 'Assalamualaikum Wr. Wb., Yth. *Penelaah Surat MS Banda Aceh. Ada surat masuk baru perlu penelaahan. Silakan akses aplikasi *LITERASI* MS Banda Aceh untuk menindaklanjuti. Demikian diinformasikan, Terima Kasih atas perhatian.';
                 }
 
-                $params = [
-                    'tabel' => 'sys_notif',
-                    'data' => array(
-                        'jenis_pesan' => 'sias',
-                        'id_pemohon' => $this->session->userdata("pegawai_id"),
-                        'pesan' => $pesan,
-                        'id_tujuan' => $pegawai_id,
-                        'created_by' => $this->session->userdata('fullname'),
-                        'created_on' => date('Y-m-d H:i:s')
-                    )
+                $dataNotif = [
+                    'jenis_pesan' => 'sias',
+                    'id_pemohon' => $this->session->userdata("pegawai_id"),
+                    'pesan' => $pesan,
+                    'id_tujuan' => $pegawai_id,
+                    'created_by' => $this->session->userdata('fullname'),
+                    'created_on' => date('Y-m-d H:i:s')
                 ];
 
-                $this->apihelper->post('apiclient/simpan_data', $params);
+                $this->kirim_notif($dataNotif);
             }
 
             return $query;
@@ -327,7 +358,7 @@ class ModelSias extends CI_Model
 
     public function simpan_pelaksanaan_validasi($data)
     {
-        $querydetail = $this->model->get_seleksi('register_surat_masuk', 'id', $data['register_id']);
+        $querydetail = $this->get_seleksi('register_surat_masuk', 'id', $data['register_id']);
         $pengirim = $querydetail->row()->pengirim;
         $perihal = $querydetail->row()->perihal;
         $nama_app = $this->session->userdata('nama_client_app');
@@ -400,19 +431,17 @@ class ModelSias extends CI_Model
             );
 
             $dataNotif = [
-                'tabel' => 'sys_notif',
-                'data' => [
-                    'jenis_pesan' => 'surat',
-                    'id_pemohon' => $this->session->userdata("id_pegawai"),
-                    'pesan' => $pesan,
-                    'id_tujuan' => $tujuanNotif,
-                    'created_by' => $penginput,
-                    'created_on' => date('Y-m-d H:i:s')
-                ]
+                'jenis_pesan' => 'surat',
+                'id_pemohon' => $this->session->userdata("id_pegawai"),
+                'pesan' => $pesan,
+                'id_tujuan' => $tujuanNotif,
+                'created_by' => $penginput,
+                'created_on' => date('Y-m-d H:i:s')
             ];
 
+            $this->kirim_notif($dataNotif);
             $querySimpanProgres = $this->simpan_data('status_surat_masuk', $dataProgres);
-            $queryUpdateSM = $this->model->pembaharuan_data('register_surat_masuk', $data_sm, 'id', $data['register_id']);
+            $queryUpdateSM = $this->pembaharuan_data('register_surat_masuk', $data_sm, 'id', $data['register_id']);
 
             if ($querySimpanProgres == '1' && $queryUpdateSM == '1') {
                 $this->apihelper->post('apiclient/simpan_data', $dataNotif);
@@ -492,15 +521,12 @@ class ModelSias extends CI_Model
                     $tujuanProgres = $data['jabatan'][$i];
 
                     $dataNotif = [
-                        'tabel' => 'sys_notif',
-                        'data' => [
-                            'jenis_pesan' => 'surat',
-                            'id_pemohon' => $this->session->userdata('id_pegawai'),
-                            'pesan' => $pesan,
-                            'id_tujuan' => $tujuanNotif,
-                            'created_by' => $penginput,
-                            'created_on' => date('Y-m-d H:i:s')
-                        ]
+                        'jenis_pesan' => 'surat',
+                        'id_pemohon' => $this->session->userdata('id_pegawai'),
+                        'pesan' => $pesan,
+                        'id_tujuan' => $tujuanNotif,
+                        'created_by' => $penginput,
+                        'created_on' => date('Y-m-d H:i:s')
                     ];
 
                     $dataDispo = array(
@@ -522,9 +548,9 @@ class ModelSias extends CI_Model
                         'created_on' => date("Y-m-d H:i:s")
                     );
 
-                    $this->notif->tambahNotif($dataNotif, 'sys_notif');
-                    $queryDispo = $this->model->simpan_data('register_disposisi', $dataDispo);
-                    $queryStatus = $this->model->simpan_data('status_surat_masuk', $data);
+                    $this->kirim_notif($dataNotif);
+                    $queryDispo = $this->simpan_data('register_disposisi', $dataDispo);
+                    $queryStatus = $this->simpan_data('status_surat_masuk', $data);
                 }
 
                 $data_sm = array(
@@ -581,11 +607,11 @@ class ModelSias extends CI_Model
                     'created_on' => date("Y-m-d H:i:s")
                 );
 
-                $queryStatus = $this->model->simpan_data('status_surat_masuk', $data);
+                $queryStatus = $this->simpan_data('status_surat_masuk', $data);
             }
 
             //query untuk update data Surat Masuk
-            $queryUpdateSM = $this->model->pembaharuan_data('register_surat_masuk', $data_sm, 'id', $data['register_id']);
+            $queryUpdateSM = $this->pembaharuan_data('register_surat_masuk', $data_sm, 'id', $data['register_id']);
 
             //cek apakah proses disposisi
             if ($data['progres'] == '1') {
@@ -600,22 +626,19 @@ class ModelSias extends CI_Model
                     'created_on' => date("Y-m-d H:i:s")
                 );
                 //die(var_dump($data_progres));
-                $queryStatus = $this->model->simpan_data('status_surat_masuk', $data_progres);
+                $queryStatus = $this->simpan_data('status_surat_masuk', $data_progres);
 
                 if ($queryUpdateSM == '1' && $queryStatus == '1') {
-                    $dataNotif = array(
-                        'tabel' => 'sys_notif',
-                        'data' => [
-                            'jenis_pesan' => 'surat',
-                            'id_pemohon' => $this->session->userdata("id_pegawai"),
-                            'pesan' => $pesan,
-                            'id_tujuan' => $tujuanNotif,
-                            'created_by' => $penginput,
-                            'created_on' => date('Y-m-d H:i:s')
-                        ]
-                    );
+                    $dataNotif = [
+                        'jenis_pesan' => 'surat',
+                        'id_pemohon' => $this->session->userdata("id_pegawai"),
+                        'pesan' => $pesan,
+                        'id_tujuan' => $tujuanNotif,
+                        'created_by' => $penginput,
+                        'created_on' => date('Y-m-d H:i:s')
+                    ];
 
-                    $this->apihelper->post('apiclient/simpan_data', $dataNotif);
+                    $this->kirim_notif($dataNotif);
                     return json_encode(array('success' => true, 'message' => 'Simpan Data Pelaksanaan Berhasil, Notifikasi Akan Segera Dikirim'));
                 } else {
                     return json_encode(array('success' => false, 'message' => 'Simpan Data Pelaksanaan Gagal'));
@@ -634,6 +657,156 @@ class ModelSias extends CI_Model
                 } else {
                     return json_encode(array('success' => false, 'message' => 'Simpan Data Pelaksanaan Gagal'));
                 }
+            }
+        }
+    }
+
+    public function simpan_pelaksanaan_surat_masuk($data)
+    {
+        $querydetail = $this->get_seleksi('register_surat_masuk', 'id', $data['register_id']);
+        $tujuan = $querydetail->row()->tujuan_surat;
+        $perihal = $querydetail->row()->perihal;
+        $nama_app = $this->session->userdata('nama_client_app');
+        $nama_pengadilan = $this->session->userdata('nama_satker');
+        $queryDispo = "";
+
+        if ($data['pelaksanaan_id'] == '99') {
+            if ($data['progres'] == '2') {
+                #Progres Disposisi
+                if (!$data['jabatan']) {
+                    return json_encode(array('success' => false, 'message' => 'Tujuan Disposisi Surat Tidak Boleh Kosong'));
+                }
+
+                if (!$data['ket']) {
+                    return json_encode(array('success' => false, 'message' => 'Keterangan Disposisi Surat Tidak Boleh Kosong'));
+                }
+
+                $data_sm = array('status' => '1', 'modified_on' => date("Y-m-d H:i:s"), 'modified_by' => $this->session->userdata('fullname'));
+                $this->pembaharuan_data('register_surat_masuk', $data_sm, 'id', $data['register_id']);
+                $penginput = $this->session->userdata('jabatan') . ' (' . $this->session->userdata('fullname') . ')';
+
+                foreach ($data['jabatan'] as $jabatan_id) {
+                    $ke = $jabatan_id;
+                    $queryPlh = $this->get_seleksi($this->db_sso . '.v_plh', 'plh_id_jabatan', $jabatan_id);
+
+                    if ($queryPlh->row()->pegawai_id != null) {
+                        $jab = $queryPlh->row()->nama;
+                        $nama_pegawai = $queryPlh->row()->nama_pegawai;
+                        $tujuanNotif = $queryPlh->row()->pegawai_id;
+                        $pesan = 'Assalamualaikum Wr. Wb., Yth. *' . $jab . ' (' . $nama_pegawai . ')*. Ada disposisi surat masuk baru dari *' . $data['pengirim'] . '* perihal *' . $perihal . '* dengan Disposisi : *' . $data['ket'] . '*. Silakan akses aplikasi *' . $nama_app . '* - ' . $nama_pengadilan . ' sebagai ' . $jab . ' untuk menindaklanjuti. Demikian diinformasikan, Terima Kasih atas perhatian.';
+                    } else {
+                        $queryUser = $this->get_seleksi2($this->db_sso . '.v_users', 'jab_id', $jabatan_id, 'status_pegawai', '1');
+                        $jab = $queryUser->row()->jabatan;
+                        $tujuanNotif = $queryUser->row()->pegawai_id;
+                        $pesan = 'Assalamualaikum Wr. Wb., Yth. *' . $jab . ' (' . $queryUser->row()->fullname . ')*. Ada disposisi surat masuk baru dari *' . $data['pengirim'] . '* perihal *' . $perihal . '* dengan Disposisi : *' . $data['ket'] . '*. Silakan akses aplikasi *' . $nama_app . '* - ' . $nama_pengadilan . ' untuk menindaklanjuti. Demikian diinformasikan, Terima Kasih atas perhatian.';
+                    }
+
+                    $dataNotif = array(
+                        'jenis_pesan' => 'surat',
+                        'id_pemohon' => $this->session->userdata('pegawai_id'),
+                        'pesan' => $pesan,
+                        'id_tujuan' => $tujuanNotif,
+                        'created_by' => $penginput,
+                        'created_on' => date('Y-m-d H:i:s')
+                    );
+
+                    $dataDispo = array(
+                        'id_sm' => $data['register_id'],
+                        'jab_id' => $this->session->userdata('jab_id'),
+                        'disposisi' => $jabatan_id,
+                        'ket_disposisi' => $data['ket'],
+                        'created_by' => $penginput,
+                        'created_on' => date("Y-m-d H:i:s")
+                    );
+
+                    $dataStatus = array(
+                        'id_sm' => $data['register_id'],
+                        'userid' => $data['pengguna_id'],
+                        'status' => '2',
+                        'tujuan' => $ke,
+                        'ket' => $data['ket'],
+                        'created_by' => $penginput,
+                        'created_on' => date("Y-m-d H:i:s")
+                    );
+
+                    $this->kirim_notif($dataNotif);
+                    $queryDispo = $this->simpan_data('register_disposisi', $dataDispo);
+                    $queryStatus = $this->simpan_data('status_surat_masuk', $dataStatus);
+                }
+            } else {
+                $penginput = $this->session->userdata('jabatan') . ' (' . $this->session->userdata('fullname') . ')';
+
+                $queryPlh = $this->get_seleksi($this->db_sso . '.v_plh', 'plh_id_jabatan', $tujuan);
+                if ($queryPlh->row()->pegawai_id != null) {
+                    $notifKe = $queryPlh->row()->pegawai_id;
+                    $notif_to = $queryPlh->row()->nama_pegawai;
+                    if ($queryPlh->row()->jabatan == 'Wakil Ketua') {
+                        $jab = $queryPlh->row()->jabatan;
+                    } else {
+                        $jab = $queryPlh->row()->nama;
+                    }
+                } else {
+                    $queryUser = $this->get_seleksi2($this->db_sso . '.v_users', 'jab_id', $tujuan, 'status_pegawai', '1');
+                    $notifKe = $queryUser->row()->pegawai_id;
+                    $jab = $queryUser->row()->jabatan;
+                    $notif_to = $queryUser->row()->fullname;
+                }
+
+                if ($data['progres'] == '3') {
+                    if (!$data['ket']) {
+                        $ket = "Dilaksanakan";
+                    }
+                    $data_sm = array('status' => '1', 'modified_on' => date("Y-m-d H:i:s"), 'modified_by' => $this->session->userdata('fullname'));
+                    $this->pembaharuan_data('register_surat_masuk', $data_sm, 'id', $data['register_id']);
+                    $pesan = 'Assalamualaikum Wr. Wb., Yth. *' . $jab . ' (' . $notif_to . ')*. Surat Masuk perihal *' . $perihal . '* sedang dilaksanakan oleh *' . $data['pengirim'] . '*. Demikian diinformasikan, Terima Kasih atas perhatian.';
+                    $data = array(
+                        'id_sm' => $data['register_id'],
+                        'userid' => $data['pengguna_id'],
+                        'status' => '3',
+                        'tujuan' => $tujuan,
+                        'ket' => $ket,
+                        'created_by' => $penginput,
+                        'created_on' => date("Y-m-d H:i:s")
+                    );
+                } elseif ($data['progres'] == '4') {
+                    if (!$data['ket']) {
+                        $ket = "Selesai";
+                    }
+                    $data_sm = array('status' => '2', 'modified_on' => date("Y-m-d H:i:s"), 'modified_by' => $this->session->userdata('fullname'));
+                    $this->pembaharuan_data('register_surat_masuk', $data_sm, 'id', $data['register_id']);
+                    $pesan = 'Assalamualaikum Wr. Wb., Yth. *' . $jab . ' (' . $notif_to . ')*. Surat masuk perihal *' . $perihal . '* telah selesai dilaksanakan oleh *' . $data['pengirim'] . '*. Demikian diinformasikan, Terima Kasih atas perhatian.';
+                    $data = array(
+                        'id_sm' => $data['register_id'],
+                        'userid' => $data['pengguna_id'],
+                        'status' => '4',
+                        'tujuan' => $tujuan,
+                        'ket' => $data['ket'],
+                        'created_by' => $penginput,
+                        'created_on' => date("Y-m-d H:i:s")
+                    );
+                }
+
+                $dataNotif = array(
+                    'jenis_pesan' => 'surat',
+                    'id_pemohon' => $this->session->userdata('pegawai_id'),
+                    'pesan' => $pesan,
+                    'id_tujuan' => $notifKe,
+                    'created_by' => $penginput,
+                    'created_on' => date('Y-m-d H:i:s')
+                );
+
+                $this->kirim_notif($dataNotif);
+                $queryStatus = $this->simpan_data('status_surat_masuk', $data);
+            }
+
+            if ($queryDispo) {
+                if ($queryStatus == 1 && $queryDispo == 1) {
+                    return json_encode(array('success' => true, 'message' => 'Simpan Data Disposisi Berhasil, Notifikasi Akan Segera Dikirim'));
+                } else {
+                    return json_encode(array('success' => false, 'message' => 'Simpan Data Disposisi Gagal'));
+                }
+            } else {
+                return json_encode(array('success' => true, 'message' => 'Simpan Data Pelaksanaan Berhasil, Notifikasi Akan Segera Dikirim'));
             }
         }
     }
@@ -712,7 +885,7 @@ class ModelSias extends CI_Model
     {
         $pelaksanaan_id = '99';
 
-        $cekValid = $this->model->get_seleksi('register_surat_masuk', 'id', $register_id);
+        $cekValid = $this->get_seleksi('register_surat_masuk', 'id', $register_id);
         //cek apakah surat sudah di validasi oleh penelaah
         if ($cekValid->row()->valid == '2') {
             //jika surat valid
@@ -721,15 +894,15 @@ class ModelSias extends CI_Model
             if ($this->session->userdata('jab_id') == '1') {
                 //user Ketua
                 $array_jabatan = array('4' => 'Panitera', '5' => 'Sekretaris');
-                $jenis_jabatan = form_multiselect('jenis_jabatan[]', $array_jabatan, '', 'class="form-select" data-placeholder="Pilih Disposisi" required id="jenis_jabatan"');
+                $jenis_jabatan = form_multiselect('jenis_jabatan[]', $array_jabatan, '', 'class="form-control" data-placeholder="Pilih Disposisi" required id="jenis_jabatan"');
             } elseif ($this->session->userdata('jab_id') == '4') {
                 //user Panitera
                 $array_jabatan = array('6' => 'Panitera Muda Gugatan', '7' => 'Panitera Muda Permohonan', '8' => 'Panitera Muda Jinayat', '9' => 'Panitera Muda Hukum');
-                $jenis_jabatan = form_multiselect('jenis_jabatan[]', $array_jabatan, '', 'class="form-select" data-placeholder="Pilih Disposisi" required id="jenis_jabatan"');
+                $jenis_jabatan = form_multiselect('jenis_jabatan[]', $array_jabatan, '', 'class="form-control" data-placeholder="Pilih Disposisi" required id="jenis_jabatan"');
             } elseif ($this->session->userdata('jab_id') == '5') {
                 //user Sekretaris
                 $array_jabatan = array('10' => 'Kepala Sub Bagian Umum dan Keuangan', '11' => 'Kepala Sub Bagian Kepegawaian', '12' => 'Kepala Sub Bagian PTIP');
-                $jenis_jabatan = form_multiselect('jenis_jabatan[]', $array_jabatan, '', 'class="form-select" data-placeholder="Pilih Disposisi" required id="jenis_jabatan"');
+                $jenis_jabatan = form_multiselect('jenis_jabatan[]', $array_jabatan, '', 'class="form-control" data-placeholder="Pilih Disposisi" required id="jenis_jabatan"');
             } else {
                 $jenis_jabatan = "";
                 $array_progres = array('0' => 'Pilih Progres Surat', '3' => 'Dilaksanakan', '4' => 'Selesai');
@@ -766,5 +939,12 @@ class ModelSias extends CI_Model
             'jenis_jabatan' => $jenis_jabatan,
             'jenis_progres' => $jenis_progres
         ];
+    }
+
+    public function get_progres_sm($id, $tgl)
+    {
+        $this->db->where("created_on <=", $tgl);
+        $this->db->where('id_sm', $id);
+        return $this->db->select('*')->from('v_progres_surat')->get()->result();
     }
 }

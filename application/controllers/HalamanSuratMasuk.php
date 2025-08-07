@@ -137,6 +137,14 @@ class HalamanSuratMasuk extends MY_Controller
         echo json_encode($disposisi);
     }
 
+    public function get_riwayat_disposisi()
+    //Fungsi ini dipanggil ketika Tab Progres di Modal Detail Surat ditekan
+    {
+        $id = $this->encryption->decrypt(base64_decode($this->input->post('suratId')));
+        $riwayatDispo = $this->model->get_seleksi('v_disposisi', 'id_sm', $id)->result_array();
+        echo json_encode($riwayatDispo);
+    }
+
     public function edit_status_surat_masuk()
     {
         $this->form_validation->set_rules('register_id', 'ID Register', 'trim|required');
@@ -166,175 +174,77 @@ class HalamanSuratMasuk extends MY_Controller
         echo $result;
     }
 
-    public function simpan_pelaksanaan_sm()
+    public function simpan_pelaksanaan_surat_masuk()
     //Fungsi ini dipanggil untuk menyimpan Pelaksanaan Surat
     {
         $this->form_validation->set_rules('register_id', 'ID Register', 'trim|required');
         $this->form_validation->set_rules('pelaksanaan_id', 'ID Surat Masuk', 'trim|required');
         if ($this->form_validation->run() == FALSE) {
-            echo json_encode(array('st' => 0, 'msg' => 'Tidak Berhasil:<br/>' . validation_errors()));
+            echo json_encode(array('success' => false, 'message' => validation_errors()));
             return;
         }
 
-        $pelaksanaan_id = $this->encrypt->decode(base64_decode($this->input->post('pelaksanaan_id')));
-        $register_id = $this->encrypt->decode(base64_decode($this->input->post('register_id')));
-        $jabatan = $this->input->post('jenis_jabatan');
-        $progres = $this->input->post('jenis_progres');
-        $ket = $this->input->post('keterangan');
-        //die(var_dump($jabatan));
-        $pengirim = $this->session->userdata('jabatan');
-        $pengguna_id = $this->session->userdata('userid');
+        $data = [
+            'pelaksanaan_id' => $this->encryption->decrypt(base64_decode($this->input->post('pelaksanaan_id'))),
+            'register_id' => $this->encryption->decrypt(base64_decode($this->input->post('register_id'))),
+            'jabatan' => $this->input->post('jenis_jabatan'),
+            'progres' => $this->input->post('jenis_progres'),
+            'ket' => $this->input->post('keterangan'),
+            'pengirim' => $this->session->userdata('jabatan'),
+            'pengguna_id' => $this->session->userdata('userid')
+        ];
 
-        $querydetail = $this->model->get_seleksi('sias_arsip_sm', 'id', $register_id);
-        $tujuan = $querydetail->row()->tujuan_surat;
-        $perihal = $querydetail->row()->perihal;
-        $nama_app = $this->session->userdata('nama_app');
-        $nama_pengadilan = $this->session->userdata('nama_pengadilan');
-        $queryDispo = "";
+        $result = $this->model->simpan_pelaksanaan_surat_masuk($data);
+        echo $result;
+    }
 
-        if ($pelaksanaan_id == '99') {
-            if ($progres == '2') {
-                #Progres Disposisi
-                $data_sm = array('status' => '1', 'modified_on' => date("Y-m-d H:i:s"), 'modified_by' => $this->session->userdata('fullname'));
-                $this->model->pembaharuan_data('sias_arsip_sm', $data_sm, 'id', $register_id);
+    public function cetak_lembar_disposisi()
+    {
+        $id = $this->input->post('register_id');
+        // Ambil data izin berdasarkan ID
+        $dataDisposisi = $this->model->get_seleksi('v_disposisi', 'id', $id);
 
-                if ($this->session->userdata('status_plh') == '1') {
-                    $penginput = $this->session->userdata('fullname') . ' (' . $this->session->userdata('nama_pegawai_plh') . ')';
-                } else {
-                    $penginput = $this->session->userdata('jabatan') . ' (' . $this->session->userdata('fullname') . ')';
-                }
+        $data['no_sm'] = $dataDisposisi->row()->no_sm;
+        $data['tgl_terima'] = $dataDisposisi->row()->tgl_terima;
+        $data['no_agenda'] = $dataDisposisi->row()->no_agenda;
+        $data['tgl_surat'] = $dataDisposisi->row()->tgl_surat;
+        $data['pengirim'] = $dataDisposisi->row()->pengirim;
+        $data['perihal'] = $dataDisposisi->row()->perihal;
+        $data['nama'] = $dataDisposisi->row()->nama;
+        $idsm = $dataDisposisi->row()->id_sm;
+        $tgl_dispo = $dataDisposisi->row()->tgl_dispo;
 
-                for ($i = 0; $i < count($jabatan); $i++) {
-                    //die(var_dump($jabatan[$i]));
-                    $ke = $jabatan[$i];
-                    $queryPlh = $this->model->get_seleksi('v_plh', 'plh_id_jabatan', $jabatan[$i]);
+        $data['progres'] = $this->model->get_progres_sm($idsm, $tgl_dispo);
+        $data['tgl_dispo'] = $dataDisposisi->row()->tgl_dispo;
 
-                    if ($queryPlh->row()->pegawai_id != null) {
-                        $jab = $queryPlh->row()->nama;
-                        $nama_pegawai = $queryPlh->row()->nama_pegawai;
-                        $tujuanNotif = $queryPlh->row()->pegawai_id;
-                        $pesan = 'Assalamualaikum Wr. Wb., Yth. *' . $jab . ' (' . $nama_pegawai . ')*. Ada disposisi surat masuk baru dari *' . $pengirim . '* perihal *' . $perihal . '* dengan Disposisi : *' . $ket . '*. Silakan akses aplikasi *' . $nama_app . '* - ' . $nama_pengadilan . ' sebagai ' . $jab . ' untuk menindaklanjuti. Demikian diinformasikan, Terima Kasih atas perhatian.';
-                    } else {
-                        $queryUser = $this->model->get_seleksi_pegawai('v_users', 'jab_id', $jabatan[$i]);
-                        $jab = $queryUser->row()->jabatan;
-                        $tujuanNotif = $queryUser->row()->pegawai_id;
-                        $pesan = 'Assalamualaikum Wr. Wb., Yth. *' . $jab . ' (' . $queryUser->row()->fullname . ')*. Ada disposisi surat masuk baru dari *' . $pengirim . '* perihal *' . $perihal . '* dengan Disposisi : *' . $ket . '*. Silakan akses aplikasi *' . $nama_app . '* - ' . $nama_pengadilan . ' untuk menindaklanjuti. Demikian diinformasikan, Terima Kasih atas perhatian.';
-                    }
+        $this->load->view('disposisi_cetak', $data);
+    }
 
-                    $dataNotif = array(
-                        'jenis_pesan' => 'surat',
-                        'id_pemohon' => $this->session->userdata('id_pegawai'),
-                        'pesan' => $pesan,
-                        'id_tujuan' => $tujuanNotif,
-                        'created_by' => $penginput,
-                        'created_on' => date('Y-m-d H:i:s')
-                    );
+    public function filter_laporan_surat_masuk()
+    {
+        $tgl_awal = $this->input->post('tgl_awal');
+        $tgl_akhir = $this->input->post('tgl_akhir');
 
-                    $dataDispo = array(
-                        'id_sm' => $register_id,
-                        'jab_id' => $this->session->userdata('id_jabatan'),
-                        'disposisi' => $jabatan[$i],
-                        'ket_disposisi' => $ket,
-                        'created_by' => $penginput,
-                        'created_on' => date("Y-m-d H:i:s")
-                    );
-
-                    $data = array(
-                        'id_sm' => $register_id,
-                        'userid' => $pengguna_id,
-                        'status' => '2',
-                        'tujuan' => $ke,
-                        'ket' => $ket,
-                        'created_by' => $penginput,
-                        'created_on' => date("Y-m-d H:i:s")
-                    );
-                    //die(var_dump($dataNotif += $data));
-                    $this->notif->tambahNotif($dataNotif, 'sys_notif');
-                    $queryDispo = $this->model->simpan_data('sias_disposisi', $dataDispo);
-                    $queryStatus = $this->model->simpan_data('sias_status_sm', $data);
-                }
-
-            } else {
-                if ($this->session->userdata('status_plh') == '1') {
-                    $penginput = $this->session->userdata('fullname') . ' (' . $this->session->userdata('nama_pegawai_plh') . ')';
-                } else {
-                    $penginput = $this->session->userdata('jabatan') . ' (' . $this->session->userdata('fullname') . ')';
-                }
-
-                $queryPlh = $this->model->get_seleksi('v_plh', 'plh_id_jabatan', $tujuan);
-                if ($queryPlh->row()->pegawai_id != null) {
-                    $notifKe = $queryPlh->row()->pegawai_id;
-                    $jab = $queryPlh->row()->nama;
-                    $notif_to = $queryPlh->row()->nama_pegawai;
-                } else {
-                    $queryUser = $this->model->get_seleksi_pegawai('v_users', 'jab_id', $tujuan);
-                    $notifKe = $queryUser->row()->pegawai_id;
-                    $jab = $queryUser->row()->jabatan;
-                    $notif_to = $queryUser->row()->fullname;
-                }
-
-                if ($progres == '3') {
-                    if (!$ket) {
-                        $ket = "Dilaksanakan";
-                    }
-                    $pesan = 'Assalamualaikum Wr. Wb., Yth. *' . $jab . ' (' . $notif_to . ')*. Surat Masuk perihal *' . $perihal . '* sedang dilaksanakan oleh *' . $pengirim . '*. Demikian diinformasikan, Terima Kasih atas perhatian.';
-                    $data = array(
-                        'id_sm' => $register_id,
-                        'userid' => $pengguna_id,
-                        'status' => '3',
-                        'tujuan' => $tujuan,
-                        'ket' => $ket,
-                        'created_by' => $penginput,
-                        'created_on' => date("Y-m-d H:i:s")
-                    );
-
-                    $data_sm = array('status' => '1', 'modified_on' => date("Y-m-d H:i:s"), 'modified_by' => $this->session->userdata('fullname'));
-                    $this->model->pembaharuan_data('sias_arsip_sm', $data_sm, 'id', $register_id);
-                } elseif ($progres == '4') {
-                    $pesan = 'Assalamualaikum Wr. Wb., Yth. *' . $jab . ' (' . $notif_to . ')*. Surat masuk perihal *' . $perihal . '* telah selesai dilaksanakan oleh *' . $pengirim . '*. Demikian diinformasikan, Terima Kasih atas perhatian.';
-                    $data = array(
-                        'id_sm' => $register_id,
-                        'userid' => $pengguna_id,
-                        'status' => '4',
-                        'tujuan' => $tujuan,
-                        'ket' => $ket,
-                        'created_by' => $penginput,
-                        'created_on' => date("Y-m-d H:i:s")
-                    );
-
-                    $data_sm = array('status' => '2', 'modified_on' => date("Y-m-d H:i:s"), 'modified_by' => $this->session->userdata('fullname'));
-                    $this->model->pembaharuan_data('sias_arsip_sm', $data_sm, 'id', $register_id);
-                }
-
-                $dataNotif = array(
-                    'jenis_pesan' => 'surat',
-                    'id_pemohon' => $this->session->userdata('id_pegawai'),
-                    'pesan' => $pesan,
-                    'id_tujuan' => $notifKe,
-                    'created_by' => $penginput,
-                    'created_on' => date('Y-m-d H:i:s')
-                );
-
-                $this->notif->tambahNotif($dataNotif, 'sys_notif');
-                #die(var_dump($data));
-                $queryStatus = $this->model->simpan_data('sias_status_sm', $data);
-            }
-
-            if ($queryDispo) {
-                if ($queryStatus == 1 && $queryDispo == 1) {
-                    $this->session->set_flashdata('info', '1');
-                    $this->session->set_flashdata('pesan_sukses', 'Simpan Data Disposisi Berhasil, Notifikasi Akan Segera Dikirim');
-                    echo json_encode(array('st' => 1, 'msg' => 'Simpan Data Disposisi Berhasil, Notifikasi Akan Segera Dikirim'));
-                } else {
-                    $this->session->set_flashdata('info', '2');
-                    $this->session->set_flashdata('pesan_gagal', 'Simpan Data Disposisi Gagal');
-                    echo json_encode(array('st' => 0, 'msg' => 'Simpan Data Disposisi Gagal'));
-                }
-            } else {
-                $this->session->set_flashdata('info', '1');
-                $this->session->set_flashdata('pesan_gagal', 'Simpan Data Pelaksanaan Berhasil, Notifikasi Akan Segera Dikirim');
-                echo json_encode(array('st' => 1, 'msg' => 'Simpan Data Pelaksanaan Berhasil, Notifikasi Akan Segera Dikirim'));
-            }
+        // Validasi sederhana
+        if (!$tgl_awal || !$tgl_akhir) {
+            echo json_encode(['status' => 'error', 'message' => 'Tanggal tidak boleh kosong.']);
+            return;
         }
+
+        $data = $this->model->all_sm_data_filter($tgl_awal, $tgl_akhir);
+
+        // Konversi tanggal jika perlu
+        $data = array_map(function ($item) {
+            return [
+                'no_agenda' => $item->no_agenda,
+                'no_sm' => $item->no_sm,
+                'pengirim' => $item->pengirim,
+                'perihal' => $item->perihal,
+                'tgl_surat' => $this->tanggalhelper->convertDayDate($item->tgl_surat),
+                'tgl_terima' => $this->tanggalhelper->convertDayDate($item->tgl_terima)
+            ];
+        }, $data);
+
+        echo json_encode(['status' => 'success', 'data' => $data]);
     }
 }

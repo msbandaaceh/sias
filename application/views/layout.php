@@ -76,14 +76,12 @@
                                         </a>
                                     </li>
                                     <li>
-                                        <a href="<?= base_url() ?>sk" class="dropdown-item">Surat Keluar
-                                            <?php if ($this->session->userdata('jum_sk_user')) { ?>
-                                                <span
-                                                    class="right badge badge-danger"><?= $this->session->userdata('jum_sk_user') ?></span>
-                                            <?php } ?></a>
+                                        <a href="#" data-page="surat_keluar" class="dropdown-item">Surat Keluar
+                                            <span class="right badge badge-danger" id="surat_keluar"></span>
+                                        </a>
                                     </li>
                                     <li>
-                                        <a href="<?= base_url() ?>disposisi" class="dropdown-item">Disposisi
+                                        <a href="#" data-page="disposisi" class="dropdown-item">Disposisi
                                             <span class="right badge badge-danger" id="disposisi"></span>
                                         </a>
                                     </li>
@@ -96,40 +94,27 @@
                                 class="nav-link dropdown-toggle">Arsip</a>
                             <ul aria-labelledby="dropdownSubMenu1" class="dropdown-menu border-0 shadow">
                                 <li><a href="#" data-page="arsip_sm" class="dropdown-item">Arsip Surat Masuk</a></li>
-                                <li><a href="<?= base_url() ?>arsip_sk" class="dropdown-item">Arsip Surat Keluar</a>
+                                <li><a href="#" data-page="arsip_sk" class="dropdown-item">Arsip Surat Keluar</a>
                                 </li>
-                                <li><a href="<?= base_url() ?>arsip_digital" class="dropdown-item">Arsip Berkas
+                                <li><a href="#" data-page="arsip_digital" class="dropdown-item">Arsip Berkas
                                         Digital</a></li>
                             </ul>
                         </li>
 
-                        <li class="nav-item dropdown">
-                            <a id="dropdownSubMenu1" href="#" data-toggle="dropdown" aria-haspopup="true"
-                                aria-expanded="false" class="nav-link dropdown-toggle">Laporan</a>
-                            <ul aria-labelledby="dropdownSubMenu1" class="dropdown-menu border-0 shadow">
-                                <?php
-                                if (($this->session->userdata('kew_sm_rep') != 'N')) {
-                                    ?>
-                                    <li><a href="<?= base_url() ?>lapor_sm" class="dropdown-item">Surat Masuk</a></li>
-                                <?php }
-                                if (($this->session->userdata('kew_sk_rep') != 'N')) {
-                                    ?>
-                                    <li><a href="<?= base_url() ?>lapor_sk" class="dropdown-item">Surat Keluar</a></li>
-                                <?php }
-                                if (($this->session->userdata('kew_dispo_rep') != 'N')) {
-                                    ?>
-                                    <li><a href="<?= base_url() ?>lapor_dispo" class="dropdown-item">Disposisi</a></li>
-                                <?php }
-                                if (($this->session->userdata('kew_prog_rep') != 'N')) {
-                                    ?>
-                                    <li><a href="<?= base_url() ?>lapor_prog" class="dropdown-item">Progres Surat</a></li>
-                                <?php }
-                                if (($this->session->userdata('kew_arsip_rep') != 'N')) {
-                                    ?>
-                                    <li><a href="<?= base_url() ?>lapor_arsip" class="dropdown-item">Arsip Digital</a></li>
-                                <?php } ?>
-                            </ul>
-                        </li>
+                        <?php if (in_array($peran, ['super', '4', '5', '10'])) {
+                            ?>
+                            <li class="nav-item dropdown">
+                                <a id="dropdownSubMenu1" href="#" data-toggle="dropdown" aria-haspopup="true"
+                                    aria-expanded="false" class="nav-link dropdown-toggle">Laporan</a>
+                                <ul aria-labelledby="dropdownSubMenu1" class="dropdown-menu border-0 shadow">
+                                    <li><a href="#" data-page="laporan_sm" class="dropdown-item">Surat Masuk</a></li>
+                                    <li><a href="#" data-page="laporan_sk" class="dropdown-item">Surat Keluar</a></li>
+                                    <li><a href="#" data-page="laporan_disposisi" class="dropdown-item">Disposisi</a></li>
+                                    <li><a href="#" data-page="laporan_progres" class="dropdown-item">Progres Surat</a></li>
+                                    <li><a href="#" data-page="laporan_arsip" class="dropdown-item">Arsip Digital</a></li>
+                                </ul>
+                            </li>
+                        <?php } ?>
 
                         <li class="nav-item dropdown">
                             <a id="dropdownSubMenu1" href="#" data-toggle="dropdown" aria-haspopup="true"
@@ -148,31 +133,25 @@
                 <ul class="order-1 order-md-3 navbar-nav navbar-no-expand ml-auto">
                     <!-- Notifikasi Surat Masuk -->
                     <li class="nav-item">
-                        <a class="nav-link" href="<?= site_url('sm') ?>" title="Notifikasi Surat Masuk">
+                        <a class="nav-link" href="#" data-page="surat_masuk" title="Notifikasi Surat Masuk">
                             <i class="fas fa-envelope-open"></i>
-                            <span class="badge badge-danger navbar-badge"><?php if ($this->session->userdata('jum_sm_user')) {
-                                echo $this->session->userdata('jum_sm_user');
-                            } ?></span>
+                            <span class="badge badge-danger navbar-badge" id="surat_masuk_icon"></span>
                         </a>
                     </li>
 
                     <!-- Notifikasi Surat Keluar -->
                     <li class="nav-item">
-                        <a class="nav-link" href="<?= site_url('sk') ?>" title="Notifikasi Surat Keluar">
+                        <a class="nav-link" href="#" data-page="surat_keluar" title="Notifikasi Surat Keluar">
                             <i class="fas fa-envelope"></i>
-                            <span class="badge badge-danger navbar-badge"><?php if ($this->session->userdata('jum_sk_user')) {
-                                echo $this->session->userdata('jum_sk_user');
-                            } ?></span>
+                            <span class="badge badge-danger navbar-badge" id="surat_keluar_icon"></span>
                         </a>
                     </li>
 
                     <!-- Notifikasi Disposisi -->
                     <li class="nav-item">
-                        <a class="nav-link" href="<?= site_url('disposisi') ?>" title="Notifikasi Disposisi">
+                        <a class="nav-link" href="#" data-page="disposisi" title="Notifikasi Disposisi">
                             <i class="fas fa-paper-plane"></i>
-                            <span class="badge badge-danger navbar-badge"><?php if ($this->session->userdata('jum_dis_user')) {
-                                echo $this->session->userdata('jum_dis_user');
-                            } ?></span>
+                            <span class="badge badge-danger navbar-badge" id="disposisi_icon"></span>
                         </a>
                     </li>
 
@@ -213,7 +192,7 @@
         </nav>
         <!-- /.navbar -->
 
-        <div id="app">Loading...</div>
+        <div id="app">Memuat...</div>
 
         <div class="modal fade" id="role-pegawai" data-backdrop="static">
             <div class="modal-dialog modal-lg">
@@ -301,19 +280,6 @@
 
     <script>
         $(document).ready(function () {
-            // Cek token SSO
-            $.ajax({
-                url: '<?= site_url("cek_token") ?>',
-                type: 'POST',
-                dataType: 'json',
-                success: function (res) {
-                    if (!res.valid) {
-                        alert(res.message);
-                        window.location.href = res.url;
-                    }
-                }
-            });
-
             // Load page
             loadPage('dashboard');
 

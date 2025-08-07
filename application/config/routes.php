@@ -13,15 +13,19 @@ $route['show_detil_sm'] = 'HalamanSuratMasuk/show_detil_sm';
 $route['simpan_sm'] = 'HalamanSuratMasuk/simpan_sm';
 $route['simpan_peran'] = 'HalamanUtama/simpan_peran';
 $route['simpan_validasi_surat_masuk'] = 'HalamanSuratMasuk/simpan_validasi_surat_masuk';
+$route['simpan_pelaksanaan_surat_masuk'] = 'HalamanSuratMasuk/simpan_pelaksanaan_surat_masuk';
 
 $route['get_validasi'] = 'HalamanSuratMasuk/get_validasi';
 $route['get_surat_masuk'] = 'HalamanSuratMasuk/get_surat_masuk';
 $route['get_disposisi'] = 'HalamanSuratMasuk/get_disposisi';
 $route['get_progres_surat_masuk'] = 'HalamanSuratMasuk/get_progres_surat_masuk';
+$route['get_riwayat_disposisi'] = 'HalamanSuratMasuk/get_riwayat_disposisi';
 
 $route['edit_status_surat_masuk'] = 'HalamanSuratMasuk/edit_status_surat_masuk';
 
 $route['blok_peran'] = 'HalamanUtama/blok_peran';
 $route['aktif_peran'] = 'HalamanUtama/aktif_peran';
+
+$route['cetak_disposisi'] = 'HalamanSuratMasuk/cetak_lembar_disposisi';
 
 $route['keluar'] = 'HalamanUtama/keluar';
