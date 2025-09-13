@@ -16,7 +16,6 @@
 class MY_Controller extends CI_Controller
 {
     private $jwt_key;
-    protected $peran;
 
     public function __construct()
     {
@@ -24,7 +23,6 @@ class MY_Controller extends CI_Controller
         $this->jwt_key = $this->config->item('jwt_key'); // inisialisasi di sini
         $cookie_domain = $this->config->item('cookie_domain');
         $sso_server = $this->config->item('sso_server');
-        $this->session->set_userdata('sso_db', $this->config->item('sso_db'));
 
         $this->load->model('ModelSias', 'model');
 
@@ -40,39 +38,50 @@ class MY_Controller extends CI_Controller
             }
         }
 
-        # Cek Data Pengguna
-        $params = [
-            'tabel' => 'v_users',
-            'kolom_seleksi' => 'userid',
-            'seleksi' => $this->session->userdata('userid')
-        ];
+        # Cek Data Pengguna dan Periksa apakah user login sebagai plh/plt atau bukan
+        if (!$this->session->userdata('status_plh')) {
+            if (!$this->session->userdata('status_plt')) {
+                $params = [
+                    'tabel' => 'v_users',
+                    'kolom_seleksi' => 'userid',
+                    'seleksi' => $this->session->userdata("userid")
+                ];
 
-        $result = $this->apihelper->get('apiclient/get_data_seleksi', $params);
+                $result = $this->apihelper->get('apiclient/get_data_seleksi', $params);
 
-        if ($result['status_code'] === 200 && $result['response']['status'] === 'success') {
-            $user_data = $result['response']['data'][0];
-            $this->session->set_userdata('pegawai_id', $user_data['pegawai_id']);
+                if ($result['status_code'] === 200 && $result['response']['status'] === 'success') {
+                    $user_data = $result['response']['data'][0];
+                    $this->session->set_userdata('pegawai_id', $user_data['pegawai_id']);
+                    $this->session->set_userdata('jabatan', $user_data['jabatan']);
+                }
+            }
         }
 
         # Cek Data Aplikasi Ini
-        $this->model->cek_aplikasi();
+        $this->model->cek_aplikasi($this->config->item('id_app'));
 
-        #Cek peran pegawai
-        $this->peran = $this->model->cek_peran();
+        # Cek peran pegawai
+        if (in_array($this->session->userdata('role'), ['super', 'admin_satker']) || $this->session->userdata('jab_id') == '4') {
+            $this->session->set_userdata('peran', 'admin');
+        } else if ($this->session->userdata('role') == 'validator_uk_satker') {
+            $this->session->set_userdata('peran', 'penelaah');
+        } else if (in_array($this->session->userdata('jab_id'), ['1', '6', '7', '8', '9', '11', '12'])) {
+            $this->session->set_userdata('peran', 'pejabat');
+        } else {
+            $query = $this->model->get_seleksi2('peran', 'userid', $this->session->userdata('userid'), 'hapus', '0');
+            if ($query->num_rows() > 0) {
+                $this->session->set_userdata('peran', $query->row()->role);
+            } else {
+                $this->session->set_userdata('peran', '');
+            }
+        }
 
-        #$cekArsipSM = count($this->sm->all_sm_data());
-        #$this->session->set_userdata('jum_sm', $cekArsipSM);
-
-        #$cekSM = count($this->sm->cek_sm_unread($this->session->userdata('id_jabatan')));
-        #$this->session->set_userdata('jum_sm_user', $cekSM);
-
-        #$cekDispoSM = count($this->sm->cek_dispo_sm_unread($this->session->userdata('id_jabatan')));
-        #$this->session->set_userdata('jum_dis_user', $cekDispoSM);
+        $this->session->set_userdata('logged_in', TRUE);
     }
 
     protected function cek_token($token)
     {
-        $cookie_domain = $this->config->item('sso_server');
+        $cookie_domain = $this->session->userdata('sso_server');
         $sso_api = $cookie_domain . "api/cek_token?sso_token={$token}";
         $response = file_get_contents($sso_api);
         $data = json_decode($response, true);

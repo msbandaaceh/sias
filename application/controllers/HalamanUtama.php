@@ -5,7 +5,7 @@ class HalamanUtama extends MY_Controller
     public function index()
     {
         #die(var_dump($this->session->all_userdata()));
-        $data['peran'] = $this->peran;
+        $data['peran'] = $this->session->userdata('peran');
         $data['page'] = 'dashboard';
 
         $this->load->view('layout', $data);
@@ -31,7 +31,7 @@ class HalamanUtama extends MY_Controller
         ];
 
         if (in_array($halaman, $allowed)) {
-            $data['peran'] = $this->peran;
+            $data['peran'] = $this->session->userdata('peran');
             $data['page'] = $halaman;
             if ($halaman == 'arsip_sm') {
                 $data['arsip_sm'] = $this->model->all_sm_data();
@@ -42,13 +42,13 @@ class HalamanUtama extends MY_Controller
             } elseif ($halaman == 'dashboard') {
                 $data['jumlah_sm'] = count($this->model->all_sm_data());
             } elseif ($halaman == 'validasi_sm') {
-                $data['validasi'] = $this->model->validasi_surat_masuk($this->peran);
+                $data['validasi'] = $this->model->validasi_surat_masuk($this->session->userdata('jab_id'));
             } elseif ($halaman == 'surat_masuk') {
-                $data['surat_masuk'] = $this->model->register_surat_masuk($this->peran);
+                $data['surat_masuk'] = $this->model->register_surat_masuk($this->session->userdata('jab_id'));
             } elseif ($halaman == 'surat_keluar') {
                 $halaman = '500';
             } elseif ($halaman == 'disposisi') {
-                $data['disposisi'] = $this->model->disposisi_surat_masuk($this->peran);
+                $data['disposisi'] = $this->model->disposisi_surat_masuk($this->session->userdata('jab_id'));
             } elseif ($halaman == 'laporan_sm') {
                 $data['laporan_sm'] = $this->model->all_sm_data();
             } elseif ($halaman == 'laporan_sk') {
@@ -69,7 +69,7 @@ class HalamanUtama extends MY_Controller
     public function cek_token_sso()
     {
         $token = $this->input->cookie('sso_token');
-        $cookie_domain = $this->config->item('sso_server');
+        $cookie_domain = $this->session->userdata('sso_server');
         $sso_api = $cookie_domain . "api/cek_token?sso_token={$token}";
         $response = file_get_contents($sso_api);
         $data = json_decode($response, true);
@@ -77,14 +77,15 @@ class HalamanUtama extends MY_Controller
         if ($data['status'] == 'success') {
             echo json_encode(['valid' => true]);
         } else {
-            echo json_encode(['valid' => false, 'message' => 'Token Expired, Silakan login ulang', 'url' => $cookie_domain . 'login']);
+            echo json_encode(['valid' => false, 'message' => 'Session Expired, Silakan login ulang', 'url' => $cookie_domain . 'login']);
         }
     }
 
     public function keluar()
     {
+        $sso_server = $this->config->item('sso_server');
         $this->session->sess_destroy();
-        redirect($this->config->item('sso_server') . '/keluar');
+        redirect($sso_server . '/keluar');
     }
 
     public function show_role()

@@ -74,6 +74,10 @@ class HalamanSuratMasuk extends MY_Controller
                     'max_size' => "5000"
                 );
 
+                if (!is_dir($config['upload_path'])) {
+                    mkdir($config['upload_path'], 0755, true);
+                }
+
                 $this->load->library('upload', $config);
                 $this->upload->initialize($config);
 

@@ -24,7 +24,7 @@
                 <div class="col-12">
                     <div class="card">
                         <?php
-                        if (in_array($peran, ['super', 'petugas'])) {
+                        if (in_array($peran, ['admin', 'operator'])) {
                             ?>
                             <div class="card-header">
                                 <div class="row justify-content-end">
@@ -55,7 +55,7 @@
                                             <th>TANGGAL SURAT</th>
                                             <th>TANGGAL TERIMA</th>
                                             <?php
-                                            if (in_array($peran, ['super', '10'])) {
+                                            if (in_array($peran, ['admin', 'penelaah'])) {
                                                 ?>
                                                 <th>AKSI</th>
                                             <?php } ?>
@@ -126,7 +126,7 @@
                                                     <?= $item->tgl_terima; ?>
                                                 </td>
                                                 <?php
-                                                if (in_array($peran, ['super', '10'])) {
+                                                if (in_array($peran, ['admin', 'penelaah'])) {
                                                     ?>
                                                     <td>
                                                         <?php $idEncrypt = str_replace('/', '___', $this->encryption->encrypt($item->id));
@@ -164,7 +164,7 @@
                                             <th>TANGGAL SURAT</th>
                                             <th>TANGGAL TERIMA</th>
                                             <?php
-                                            if (in_array($peran, ['super', '10'])) {
+                                            if (in_array($peran, ['admin', 'penelaah'])) {
                                                 ?>
                                                 <th>AKSI</th>
                                             <?php } ?>

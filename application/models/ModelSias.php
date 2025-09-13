@@ -17,7 +17,7 @@ class ModelSias extends CI_Model
         parent::__construct();
 
         // Inisialisasi variabel private dengan nilai dari session
-        $this->db_sso = config_item('sso_db');
+        $this->db_sso = $this->session->userdata('sso_db');
     }
 
     private function add_audittrail($action, $title, $table, $descrip)
@@ -26,15 +26,17 @@ class ModelSias extends CI_Model
         $params = [
             'tabel' => 'sys_audittrail',
             'data' => [
+                'datetime' => date("Y-m-d H:i:s"),
+                'ipaddress' => $this->input->ip_address(),
                 'action' => $action,
                 'title' => $title,
-                'table' => $table,
+                'tablename' => $table,
                 'description' => $descrip,
                 'username' => $this->session->userdata('username')
             ]
         ];
 
-        $this->apihelper->post('api_audittrail', $params);
+        $this->apihelper->post('apiclient/simpan_data', $params);
     }
 
     private function kirim_notif($data)
@@ -47,12 +49,12 @@ class ModelSias extends CI_Model
         $this->apihelper->post('apiclient/simpan_data', $params);
     }
 
-    public function cek_aplikasi()
+    public function cek_aplikasi($id)
     {
         $params = [
             'tabel' => 'ref_client_app',
             'kolom_seleksi' => 'id',
-            'seleksi' => '3'
+            'seleksi' => $id
         ];
 
         $result = $this->apihelper->get('apiclient/get_data_seleksi', $params);
@@ -66,21 +68,6 @@ class ModelSias extends CI_Model
                 ]
             );
         }
-    }
-
-    public function cek_peran()
-    {
-        $peran = '';
-        $query = $this->get_seleksi2('peran', 'userid', $this->session->userdata('userid'), 'hapus', '0');
-        if ($query->num_rows() > 0) {
-            if ($query->row()->role == 'petugas')
-                $peran = 'petugas';
-        } else if ($this->session->userdata('super'))
-            $peran = 'super';
-        else
-            $peran = $this->session->userdata('jab_id');
-
-        return $peran;
     }
 
     public function cek_no_agenda()
@@ -293,6 +280,9 @@ class ModelSias extends CI_Model
     {
         try {
             $this->db->insert($tabel, $data);
+            $title = "Simpan Data <br />Update tabel <b>" . $tabel . "</b>[]";
+            $descrip = null;
+            $this->add_audittrail("INSERT", $title, $tabel, $descrip);
             return 1;
         } catch (Exception $e) {
             return 0;

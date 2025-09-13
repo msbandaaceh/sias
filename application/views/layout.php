@@ -54,14 +54,14 @@
                         <li class="nav-item">
                             <a href="#" data-page="dashboard" class="nav-link">Beranda</a>
                         </li>
-                        <?php if (in_array($peran, ['super', '1', '4', '5', '6', '7', '8', '9', '10', '11', '12'])) { ?>
+                        <?php if (in_array($peran, ['admin', 'penelaah', 'pejabat'])) { ?>
                             <li class="nav-item dropdown">
                                 <a id="dropdownSubMenu1" href="#" data-toggle="dropdown" aria-haspopup="true"
                                     aria-expanded="false" class="nav-link dropdown-toggle">Surat
                                     <span class="right badge badge-danger" id="total"></span>
                                 </a>
                                 <ul aria-labelledby="dropdownSubMenu1" class="dropdown-menu border-0 shadow">
-                                    <?php if (in_array($peran, ['super', '4', '5', '10'])) {
+                                    <?php if (in_array($peran, ['admin', 'penelaah'])) {
                                         ?>
                                         <li>
                                             <a href="#" data-page="validasi_sm" class="dropdown-item">Validasi Surat Masuk
@@ -101,7 +101,7 @@
                             </ul>
                         </li>
 
-                        <?php if (in_array($peran, ['super', '4', '5', '10'])) {
+                        <?php if (in_array($peran, ['admin', 'penelaah'])) {
                             ?>
                             <li class="nav-item dropdown">
                                 <a id="dropdownSubMenu1" href="#" data-toggle="dropdown" aria-haspopup="true"
@@ -114,46 +114,50 @@
                                     <li><a href="#" data-page="laporan_arsip" class="dropdown-item">Arsip Digital</a></li>
                                 </ul>
                             </li>
-                        <?php } ?>
 
-                        <li class="nav-item dropdown">
-                            <a id="dropdownSubMenu1" href="#" data-toggle="dropdown" aria-haspopup="true"
-                                aria-expanded="false" class="nav-link dropdown-toggle">Pengaturan</a>
-                            <ul aria-labelledby="dropdownSubMenu1" class="dropdown-menu border-0 shadow">
-                                <li><button onclick="ModalRole('-1')" class="dropdown-item">Data Pengguna</a></li>
-                                <li><a href="<?= base_url() ?>klas" class="dropdown-item">Klasifikasi Surat</a></li>
-                                <li><a href="<?= base_url() ?>klas_arsip" class="dropdown-item">Klasifikasi Arsip</a>
-                                </li>
-                            </ul>
-                        </li>
+                            <li class="nav-item dropdown">
+                                <a id="dropdownSubMenu1" href="#" data-toggle="dropdown" aria-haspopup="true"
+                                    aria-expanded="false" class="nav-link dropdown-toggle">Pengaturan</a>
+                                <ul aria-labelledby="dropdownSubMenu1" class="dropdown-menu border-0 shadow">
+                                    <li><button onclick="ModalRole('-1')" class="dropdown-item">Data Pengguna</a></li>
+                                    <li><a href="<?= base_url() ?>klas" class="dropdown-item">Klasifikasi Surat</a></li>
+                                    <li><a href="<?= base_url() ?>klas_arsip" class="dropdown-item">Klasifikasi Arsip</a>
+                                    </li>
+                                </ul>
+                            </li>
+
+                        <?php } ?>
                     </ul>
                 </div>
 
                 <!-- Right navbar links -->
                 <ul class="order-1 order-md-3 navbar-nav navbar-no-expand ml-auto">
-                    <!-- Notifikasi Surat Masuk -->
-                    <li class="nav-item">
-                        <a class="nav-link" href="#" data-page="surat_masuk" title="Notifikasi Surat Masuk">
-                            <i class="fas fa-envelope-open"></i>
-                            <span class="badge badge-danger navbar-badge" id="surat_masuk_icon"></span>
-                        </a>
-                    </li>
+                    <?php if (in_array($peran, ['admin', 'penelaah'])) {
+                        ?>
+                        <!-- Notifikasi Surat Masuk -->
+                        <li class="nav-item">
+                            <a class="nav-link" href="#" data-page="surat_masuk" title="Notifikasi Surat Masuk">
+                                <i class="fas fa-envelope-open"></i>
+                                <span class="badge badge-danger navbar-badge" id="surat_masuk_icon"></span>
+                            </a>
+                        </li>
 
-                    <!-- Notifikasi Surat Keluar -->
-                    <li class="nav-item">
-                        <a class="nav-link" href="#" data-page="surat_keluar" title="Notifikasi Surat Keluar">
-                            <i class="fas fa-envelope"></i>
-                            <span class="badge badge-danger navbar-badge" id="surat_keluar_icon"></span>
-                        </a>
-                    </li>
+                        <!-- Notifikasi Surat Keluar -->
+                        <li class="nav-item">
+                            <a class="nav-link" href="#" data-page="surat_keluar" title="Notifikasi Surat Keluar">
+                                <i class="fas fa-envelope"></i>
+                                <span class="badge badge-danger navbar-badge" id="surat_keluar_icon"></span>
+                            </a>
+                        </li>
 
-                    <!-- Notifikasi Disposisi -->
-                    <li class="nav-item">
-                        <a class="nav-link" href="#" data-page="disposisi" title="Notifikasi Disposisi">
-                            <i class="fas fa-paper-plane"></i>
-                            <span class="badge badge-danger navbar-badge" id="disposisi_icon"></span>
-                        </a>
-                    </li>
+                        <!-- Notifikasi Disposisi -->
+                        <li class="nav-item">
+                            <a class="nav-link" href="#" data-page="disposisi" title="Notifikasi Disposisi">
+                                <i class="fas fa-paper-plane"></i>
+                                <span class="badge badge-danger navbar-badge" id="disposisi_icon"></span>
+                            </a>
+                        </li>
+                    <?php } ?>
 
                     <!-- Messages Dropdown Menu -->
                     <li class="nav-item dropdown user-menu">
@@ -168,17 +172,12 @@
                             <li class="user-header">
                                 <img src="<?= $this->session->userdata('foto'); ?>" class="img-circle elevation-2"
                                     alt="User Image">
-                                <p>
-                                    <?= $this->session->userdata('fullname') ?>
-                                </p>
+                                <p class="profile-username text-center"><?= $this->session->userdata('fullname') ?></p>
+                                <p class="text-muted text-center"><?= $this->session->userdata('jabatan') ?></p>
                             </li>
                             <!-- Menu Footer-->
                             <li class="user-footer">
                                 <div class="row">
-                                    <div class="col-12 text-center">
-                                        <a href="<?= site_url('') ?>"
-                                            class="btn btn-outline-success btn-block">Dashboard</a>
-                                    </div>
                                     <div class="col-12 text-center">
                                         <a href="<?= site_url('keluar') ?>"
                                             class="btn btn-outline-success btn-block">Keluar</a>
@@ -290,7 +289,7 @@
                 loadPage(page);
             });
 
-            let jabatan = '<?= $peran ?>';
+            let jabatan = '<?= $this->session->userdata('jab_id') ?>';
             const peran = ['1', '4', '5', '6', '7', '8', '9', '10', '11', '12'];
 
             if (peran.includes(jabatan)) {
