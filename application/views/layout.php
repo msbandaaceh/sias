@@ -36,7 +36,7 @@
         <!-- Navbar -->
         <nav class="main-header navbar navbar-expand-md navbar-light navbar-white">
             <div class="container">
-                <a href="#" data-page="dashboard" class="navbar-brand">
+                <a href="javascript:;" data-page="dashboard" class="navbar-brand">
                     <img src="<?= site_url('assets/icon/sias.ico'); ?>" alt="Logo"
                         class="brand-image img-circle elevation-3" style="opacity: .8">
                     <span class="brand-text font-weight-light">Surat</span>
@@ -52,11 +52,11 @@
                     <!-- Left navbar links -->
                     <ul class="navbar-nav">
                         <li class="nav-item">
-                            <a href="#" data-page="dashboard" class="nav-link">Beranda</a>
+                            <a href="javascript:;" data-page="dashboard" class="nav-link">Beranda</a>
                         </li>
                         <?php if (in_array($peran, ['admin', 'penelaah', 'pejabat'])) { ?>
                             <li class="nav-item dropdown">
-                                <a id="dropdownSubMenu1" href="#" data-toggle="dropdown" aria-haspopup="true"
+                                <a id="dropdownSubMenu1" href="javascript:;" data-toggle="dropdown" aria-haspopup="true"
                                     aria-expanded="false" class="nav-link dropdown-toggle">Surat
                                     <span class="right badge badge-danger" id="total"></span>
                                 </a>
@@ -64,24 +64,24 @@
                                     <?php if (in_array($peran, ['admin', 'penelaah'])) {
                                         ?>
                                         <li>
-                                            <a href="#" data-page="validasi_sm" class="dropdown-item">Validasi Surat Masuk
+                                            <a href="javascript:;" data-page="validasi_sm" class="dropdown-item">Validasi Surat Masuk
                                                 <span class="right badge badge-danger" id="validasi"></span>
                                             </a>
                                         </li>
                                         <?php
                                     } ?>
                                     <li>
-                                        <a href="#" data-page="surat_masuk" class="dropdown-item">Surat Masuk
+                                        <a href="javascript:;" data-page="surat_masuk" class="dropdown-item">Surat Masuk
                                             <span class="right badge badge-danger" id="surat_masuk"></span>
                                         </a>
                                     </li>
                                     <li>
-                                        <a href="#" data-page="surat_keluar" class="dropdown-item">Surat Keluar
+                                        <a href="javascript:;" data-page="surat_keluar" class="dropdown-item">Surat Keluar
                                             <span class="right badge badge-danger" id="surat_keluar"></span>
                                         </a>
                                     </li>
                                     <li>
-                                        <a href="#" data-page="disposisi" class="dropdown-item">Disposisi
+                                        <a href="javascript:;" data-page="disposisi" class="dropdown-item">Disposisi
                                             <span class="right badge badge-danger" id="disposisi"></span>
                                         </a>
                                     </li>
@@ -93,10 +93,10 @@
                             <a href="" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
                                 class="nav-link dropdown-toggle">Arsip</a>
                             <ul aria-labelledby="dropdownSubMenu1" class="dropdown-menu border-0 shadow">
-                                <li><a href="#" data-page="arsip_sm" class="dropdown-item">Arsip Surat Masuk</a></li>
-                                <li><a href="#" data-page="arsip_sk" class="dropdown-item">Arsip Surat Keluar</a>
+                                <li><a href="javascript:;" data-page="arsip_sm" class="dropdown-item">Arsip Surat Masuk</a></li>
+                                <li><a href="javascript:;" data-page="arsip_sk" class="dropdown-item">Arsip Surat Keluar</a>
                                 </li>
-                                <li><a href="#" data-page="arsip_digital" class="dropdown-item">Arsip Berkas
+                                <li><a href="javascript:;" data-page="arsip_digital" class="dropdown-item">Arsip Berkas
                                         Digital</a></li>
                             </ul>
                         </li>
@@ -104,14 +104,14 @@
                         <?php if (in_array($peran, ['admin', 'penelaah'])) {
                             ?>
                             <li class="nav-item dropdown">
-                                <a id="dropdownSubMenu1" href="#" data-toggle="dropdown" aria-haspopup="true"
+                                <a id="dropdownSubMenu1" href="javascript:;" data-toggle="dropdown" aria-haspopup="true"
                                     aria-expanded="false" class="nav-link dropdown-toggle">Laporan</a>
                                 <ul aria-labelledby="dropdownSubMenu1" class="dropdown-menu border-0 shadow">
-                                    <li><a href="#" data-page="laporan_sm" class="dropdown-item">Surat Masuk</a></li>
-                                    <li><a href="#" data-page="laporan_sk" class="dropdown-item">Surat Keluar</a></li>
-                                    <li><a href="#" data-page="laporan_disposisi" class="dropdown-item">Disposisi</a></li>
-                                    <li><a href="#" data-page="laporan_progres" class="dropdown-item">Progres Surat</a></li>
-                                    <li><a href="#" data-page="laporan_arsip" class="dropdown-item">Arsip Digital</a></li>
+                                    <li><a href="javascript:;" data-page="laporan_sm" class="dropdown-item">Surat Masuk</a></li>
+                                    <li><a href="javascript:;" data-page="laporan_sk" class="dropdown-item">Surat Keluar</a></li>
+                                    <li><a href="javascript:;" data-page="laporan_disposisi" class="dropdown-item">Disposisi</a></li>
+                                    <li><a href="javascript:;" data-page="laporan_progres" class="dropdown-item">Progres Surat</a></li>
+                                    <li><a href="javascript:;" data-page="laporan_arsip" class="dropdown-item">Arsip Digital</a></li>
                                 </ul>
                             </li>
 
@@ -136,7 +136,7 @@
                         ?>
                         <!-- Notifikasi Surat Masuk -->
                         <li class="nav-item">
-                            <a class="nav-link" href="#" data-page="surat_masuk" title="Notifikasi Surat Masuk">
+                            <a class="nav-link" href="javascript:;" data-page="surat_masuk" title="Notifikasi Surat Masuk">
                                 <i class="fas fa-envelope-open"></i>
                                 <span class="badge badge-danger navbar-badge" id="surat_masuk_icon"></span>
                             </a>
@@ -144,7 +144,7 @@
 
                         <!-- Notifikasi Surat Keluar -->
                         <li class="nav-item">
-                            <a class="nav-link" href="#" data-page="surat_keluar" title="Notifikasi Surat Keluar">
+                            <a class="nav-link" href="javascript:;" data-page="surat_keluar" title="Notifikasi Surat Keluar">
                                 <i class="fas fa-envelope"></i>
                                 <span class="badge badge-danger navbar-badge" id="surat_keluar_icon"></span>
                             </a>
@@ -152,7 +152,7 @@
 
                         <!-- Notifikasi Disposisi -->
                         <li class="nav-item">
-                            <a class="nav-link" href="#" data-page="disposisi" title="Notifikasi Disposisi">
+                            <a class="nav-link" href="javascript:;" data-page="disposisi" title="Notifikasi Disposisi">
                                 <i class="fas fa-paper-plane"></i>
                                 <span class="badge badge-danger navbar-badge" id="disposisi_icon"></span>
                             </a>
@@ -161,7 +161,7 @@
 
                     <!-- Messages Dropdown Menu -->
                     <li class="nav-item dropdown user-menu">
-                        <a href="#" class="nav-link" data-toggle="dropdown">
+                        <a href="javascript:;" class="nav-link" data-toggle="dropdown">
                             <div class="image">
                                 <img src="<?= $this->session->userdata('foto'); ?>"
                                     class="user-image img-circle elevation-2" alt="User Image">

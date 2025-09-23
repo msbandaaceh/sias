@@ -84,8 +84,9 @@ class ModelSias extends CI_Model
 
     public function register_surat_masuk($jab_id)
     {
-        $this->db->order_by('dibaca');
-        $this->db->order_by('id', 'DESC');
+        $this->db->order_by('status', 'ASC');
+        $this->db->order_by('created_on', 'DESC');
+        $this->db->order_by('dibaca', 'ASC');
         $this->db->where('tujuan_surat', $jab_id);
         return $this->db->select('*')->from('register_surat_masuk')->get()->result();
     }
@@ -119,7 +120,7 @@ class ModelSias extends CI_Model
 
     public function surat_masuk($jab_id)
     {
-        $this->db->order_by('id', 'DESC');
+        $this->db->order_by('status', 'ASC');
         $this->db->where('status', '0');
         $this->db->where('valid', '2');
         $this->db->where('tujuan_surat', $jab_id);
