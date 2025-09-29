@@ -302,11 +302,12 @@
     <script type="text/javascript">
         var config = {
             result: '<?= $result ?>',
-            pesan: '<?= $pesan ?>'
+            pesan: '<?= $pesan ?>',
+            halaman: '<?= $page ?>'
         };
     </script>
 
-    <script src="<?= site_url('assets/js/sias.js'); ?>"></script>
+    <script src="<?= site_url('assets/js/sias.js?v=1.0.0'); ?>"></script>
 </body>
 
 </html>

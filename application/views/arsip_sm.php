@@ -372,7 +372,7 @@
                         <div class="card-header p-0 pt-1">
                             <ul class="nav nav-tabs" id="tab_surat" role="tablist">
                                 <li class="nav-item">
-                                    <a class="nav-link active" id="data_surat_tab" data-toggle="pill" href="#view_surat"
+                                    <a class="nav-link" id="data_surat_tab" data-toggle="pill" href="#view_surat"
                                         role="tab" aria-controls="view_surat" aria-selected="false">Lihat Surat</a>
                                 </li>
                                 <li class="nav-item">
@@ -389,7 +389,7 @@
                         </div>
                         <div class="card-body">
                             <div class="tab-content" id="tab_surat_content">
-                                <div class="tab-pane active" id="view_surat" role="tabpanel"
+                                <div class="tab-pane" id="view_surat" role="tabpanel"
                                     aria-labelledby="view_surat_tab">
                                     <span id="dokumen_detil"></span>
                                 </div>

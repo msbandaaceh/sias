@@ -157,9 +157,9 @@ function getNotifSuratMasuk() {
     var disposisi = $('#disposisi');
     var icon_sm = $('#surat_masuk_icon');
     var icon_disposisi = $('#disposisi_icon');
-    valid.empty();
-    surat_masuk.empty();
-    disposisi.empty();
+    valid.html('');
+    surat_masuk.html('');
+    disposisi.html('');
     var notif = 0;
 
     // Gunakan $.when untuk menunggu semua AJAX selesai
@@ -226,6 +226,7 @@ function getNotifSuratMasuk() {
 
 var result = config.result;
 var pesan = config.pesan;
+var halaman = config.halaman;
 if (result != '-1') {
     if (result == '1') {
         sukses(pesan);
@@ -406,6 +407,8 @@ function ModalInputSurat(id) {
 }
 
 function BukaDetilSurat(status, id) {
+    $('#tab_surat a:first').tab('show');
+
     $.post('show_detil_sm', {
         status: status, id: id
     }, function (response) {
@@ -621,6 +624,7 @@ function SimpanPelaksanaanSM() {
     var jenis_progres = $('#jenis_progres').val();
     var jenis_jabatan = $('#jenis_jabatan').val();
     var keterangan = $('#keterangan_pelaksanaan').val();
+    var halaman = $('#halaman').val();
 
     $('#tombol_simpan_disposisi').attr("disabled", true);
     //console.log(register_id+", "+pelaksanaan_id+", "+jenis_jabatan+", "+keterangan);
@@ -640,6 +644,7 @@ function SimpanPelaksanaanSM() {
             toastr.success(json.message);
             $('#tombol_simpan_disposisi').removeAttr("disabled");
             getNotifSuratMasuk();
+            loadPage(halaman);
         } else {
             toastr.error(json.message);
             getNotifSuratMasuk();

@@ -195,6 +195,7 @@
                                                 <tbody>
                                                     <tr>
                                                         <input type="hidden" id="pelaksanaan_id">
+                                                        <input type="hidden" id="halaman" value="<?= $page ?>">
                                                         <td style="width: 30%;" class="control-label"><label>Progres
                                                                 Surat <font color='red'>*</font></label></td>
                                                         <td style="width: 1%;"><b>:</b></td>

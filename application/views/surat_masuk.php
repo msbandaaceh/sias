@@ -155,7 +155,7 @@
                     </div>
                     <div class="card card-success card-tabs">
                         <div class="card-header p-0 pt-1">
-                            <ul class="nav nav-tabs" id="surat_tab" role="tablist">
+                            <ul class="nav nav-tabs" id="tab_surat" role="tablist">
                                 <li class="nav-item">
                                     <a class="nav-link active" id="data_surat_tab" data-toggle="pill"
                                         href="#custom-tabs-one-profile" role="tab"
@@ -195,6 +195,7 @@
                                                 <tbody>
                                                     <tr>
                                                         <input type="hidden" id="pelaksanaan_id">
+                                                        <input type="hidden" id="halaman" value="<?= $page ?>">
                                                         <td style="width: 30%;" class="control-label"><label>Progres
                                                                 Surat <font color='red'>*</font></label></td>
                                                         <td style="width: 1%;"><b>:</b></td>
