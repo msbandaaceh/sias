@@ -307,7 +307,7 @@
         };
     </script>
 
-    <script src="<?= site_url('assets/js/sias.js?v=1.0.0'); ?>"></script>
+    <script src="<?= site_url('assets/js/sias.js?v=1.0.5'); ?>"></script>
 </body>
 
 </html>

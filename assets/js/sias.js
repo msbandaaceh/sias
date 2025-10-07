@@ -128,11 +128,28 @@ $(function () {
 
 function loadPage(page) {
     cekToken();
-    $('#app').html('<div class="text-center p-4">Memuat...</div>');
+    $('#app').html(`
+        <div class="page-wrapper">
+            <div class="page-content">
+                <div class="text-center p-4">
+                    <div class="spinner-border text-primary" role="status"></div>
+                </div>
+                <div class="text-center">
+                    <span>Memuat Halaman... Harap Tunggu Sebentar</span>
+                </div>
+            </div>
+        </div>
+    `);
     $.get("halamanutama/page/" + page, function (data) {
         $('#app').html(data);
     }).fail(function () {
-        $('#app').html('<div class="text-danger">Halaman tidak ditemukan.</div>');
+        $('#app').html(`
+            <div class="page-wrapper">
+                <div class="page-content">
+                    <div class="text-center p-4">Halaman tidak ditemukan.</div>
+                </div>
+            </div>
+        `);
     });
 }
 
@@ -160,6 +177,8 @@ function getNotifSuratMasuk() {
     valid.html('');
     surat_masuk.html('');
     disposisi.html('');
+    icon_sm.html('');
+    icon_disposisi.html('');
     var notif = 0;
 
     // Gunakan $.when untuk menunggu semua AJAX selesai
@@ -407,13 +426,16 @@ function ModalInputSurat(id) {
 }
 
 function BukaDetilSurat(status, id) {
-    $('#tab_surat a:first').tab('show');
+    $('#overlay-modal').show();
 
     $.post('show_detil_sm', {
         status: status, id: id
     }, function (response) {
         var json = jQuery.parseJSON(response);
         if (json.st == 1) {
+            $('#tab_surat a:first').tab('show');
+            $('#overlay-modal').hide();
+
             $("#judul_detil").html("");
             $("#register_id_detil").val("");
             $("#dokumen_detil").html("");
@@ -452,6 +474,7 @@ function BukaDetilSurat(status, id) {
 }
 
 function TampilProgresSurat() {
+    $('#overlay-progres').show();
     $.ajax({
         url: 'get_progres_surat_masuk',
         method: 'POST',
@@ -496,11 +519,14 @@ function TampilProgresSurat() {
             } else {
                 div_surat.append('<div class="text-center">Progres Surat Belum Ada</div>');
             }
+
+            $('#overlay-progres').hide();
         }
     });
 }
 
 function TampilRiwayatDisposisi() {
+    $('#overlay-disposisi').show();
     $.ajax({
         url: 'get_riwayat_disposisi',
         method: 'POST',
@@ -527,6 +553,8 @@ function TampilRiwayatDisposisi() {
             } else {
                 div_surat.append('<div class="text-center">Belum Ada Riwayat Disposisi</div>');
             }
+
+            $('#overlay-disposisi').hide();
         }
     });
 }
@@ -550,6 +578,7 @@ function CetakDisposisi(id) {
 }
 
 function TampilPelaksanaan() {
+    $('#overlay-progres').show();
     var register_id = $('#register_id_detil').val();
     $.post('edit_status_surat_masuk', {
         register_id: register_id
@@ -567,6 +596,7 @@ function TampilPelaksanaan() {
             });
             $('#tambah_pelaksanaan').show();
             $('.disposisi_surat').hide();
+            $('#overlay-progres').hide();
         } else if (json.st == 0) {
             $('#table_pegawai').DataTable().ajax.reload();
         }
@@ -589,6 +619,8 @@ function SimpanPelaksanaan() {
     var jenis_jabatan = $('#jenis_jabatan').val();
     var keterangan = $('#keterangan_pelaksanaan').val();
     var jenis_progres = $('#jenis_progres').val();
+
+    $('#overlay-modal').show();
 
     $('#tombol_simpan_disposisi').attr("disabled", true);
     //console.log(register_id+", "+pelaksanaan_id+", "+jenis_jabatan+", "+keterangan);
@@ -615,6 +647,8 @@ function SimpanPelaksanaan() {
             getNotifSuratMasuk();
             $('#tombol_simpan_disposisi').removeAttr("disabled");
         }
+
+        $('#overlay-modal').hide();
     });
 }
 
@@ -625,6 +659,8 @@ function SimpanPelaksanaanSM() {
     var jenis_jabatan = $('#jenis_jabatan').val();
     var keterangan = $('#keterangan_pelaksanaan').val();
     var halaman = $('#halaman').val();
+
+    $('#overlay-modal').show();
 
     $('#tombol_simpan_disposisi').attr("disabled", true);
     //console.log(register_id+", "+pelaksanaan_id+", "+jenis_jabatan+", "+keterangan);
@@ -650,6 +686,8 @@ function SimpanPelaksanaanSM() {
             getNotifSuratMasuk();
             $('#tombol_simpan_disposisi').removeAttr("disabled");
         }
+
+        $('#overlay-modal').hide();
     });
 }
 

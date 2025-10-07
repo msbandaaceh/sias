@@ -28,7 +28,15 @@
                             if ($disposisi) {
                                 $no = 1;
                                 ?>
-                                <table class="table">
+                                <table class="table" id="tabelDisposisi">
+                                    <thead>
+                                        <tr>
+                                            <th>NO</th>
+                                            <th>STATUS SURAT</th>
+                                            <th>PERIHAL</th>
+                                            <th>TANGGAL SURAT</th>
+                                        </tr>
+                                    </thead>
                                     <tbody>
                                         <?php foreach ($disposisi as $item) { ?>
                                             <tr>
@@ -119,6 +127,9 @@
     <div class="modal fade" id="detilModal" data-backdrop="static">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
+                <div class="overlay" id="overlay-modal">
+                    <i class="fas fa-2x fa-sync fa-spin"></i>
+                </div>
                 <div class="modal-header">
                     <h5 class="modal-title" id="judul_detil"></h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -156,7 +167,7 @@
                     </div>
                     <div class="card card-success card-tabs">
                         <div class="card-header p-0 pt-1">
-                            <ul class="nav nav-tabs" id="surat_tab" role="tablist">
+                            <ul class="nav nav-tabs" id="tab_surat" role="tablist">
                                 <li class="nav-item">
                                     <a class="nav-link active" id="data_surat_tab" data-toggle="pill"
                                         href="#custom-tabs-one-profile" role="tab"
@@ -182,6 +193,9 @@
                                 </div>
                                 <div class="tab-pane fade" id="custom-tabs-one-messages" role="tabpanel"
                                     aria-labelledby="custom-tabs-one-messages-tab">
+                                    <div class="overlay" id="overlay-progres">
+                                        <i class="fas fa-2x fa-sync fa-spin"></i>
+                                    </div>
                                     <div id="progres_surat"></div>
                                     <div class="row">
                                         <div class="col-md-12" style="margin-bottom:10px;" id="btn_aksi">
@@ -234,6 +248,9 @@
                                 </div>
                                 <div class="tab-pane fade" id="riwayat_disposisi" role="tabpanel"
                                     aria-labelledby="riwayat_disposisi_tab">
+                                    <div class="overlay" id="overlay-disposisi">
+                                        <i class="fas fa-2x fa-sync fa-spin"></i>
+                                    </div>
                                     <div id="riwayat_disposisi"></div>
                                 </div>
                             </div>
@@ -249,3 +266,11 @@
     <!-- /.content -->
 </div>
 <!-- Content wrapper -->
+
+<script>
+    $(function () {
+        $("#tabelDisposisi").DataTable({
+            "responsive": true, "lengthChange": false, "autoWidth": false
+        }).buttons().container().appendTo('#tabelDisposisi_wrapper .col-md-6:eq(0)');
+    });
+</script>

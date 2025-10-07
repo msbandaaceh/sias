@@ -355,17 +355,21 @@ class ModelSias extends CI_Model
         $nama_app = $this->session->userdata('nama_client_app');
         $nama_pengadilan = $this->session->userdata('nama_satker');
 
+        $ket_progres = $data['keterangan'];
+        $register_id = $data['register_id'];
+        $progres = $data['progres'];
+
         # cek user
         if ($this->session->userdata('jab_id') == '10') {
             # jika user penelaah
             $status_valid = '1';
             $status_progres = '1';
             $tujuan_sm = '';
-            if (!$data['keterangan']) {
-                $data['keterangan'] = '-';
+            if (!$ket_progres) {
+                $ket_progres = '-';
             }
 
-            $tujuanProgres = $data['progres'];
+            $tujuanProgres = $progres;
             if ($this->session->userdata('status_plh') == '1' || $this->session->userdata('status_plt') == '1') {
                 $penginput = 'Penelaah (' . $this->session->userdata('nama_pegawai_plh') . ')';
             } else {
@@ -378,7 +382,7 @@ class ModelSias extends CI_Model
                 $bidang = '1';
 
                 # Cek apakah ada plh jabatan
-                $queryPlh = $this->get_seleksi($this->db_sso . '.v_plh', 'plh_id_jabatan', $data['progres']);
+                $queryPlh = $this->get_seleksi($this->db_sso . '.v_plh', 'plh_id_jabatan', $progres);
                 if ($queryPlh->row()->pegawai_id != null) {
                     $tujuanNotif = $queryPlh->row()->pegawai_id;
                     $pesan = 'Assalamualaikum Wr. Wb., Yth. *Plh Panitera MS Banda Aceh (' . $queryPlh->row()->nama_pegawai . ')*. Ada validasi surat masuk perlu diproses baru dari *' . $pengirim . '* perihal *' . $perihal . '*. Silakan akses aplikasi *' . $nama_app . '* - ' . $nama_pengadilan . ' untuk menindaklanjuti. Demikian diinformasikan, Terima Kasih atas perhatian.';
@@ -392,7 +396,7 @@ class ModelSias extends CI_Model
                 $bidang = '2';
 
                 # Cek apakah ada plh jabatan
-                $queryPlh = $this->get_seleksi($this->db_sso . '.v_plh', 'plh_id_jabatan', $data['progres']);
+                $queryPlh = $this->get_seleksi($this->db_sso . '.v_plh', 'plh_id_jabatan', $progres);
                 if ($queryPlh->row()->pegawai_id != null) {
                     $tujuanNotif = $queryPlh->row()->pegawai_id;
                     $pesan = 'Assalamualaikum Wr. Wb., Yth. *Plh Sekretaris MS Banda Aceh (' . $queryPlh->row()->nama_pegawai . ')*. Ada validasi surat masuk perlu diproses baru dari *' . $pengirim . '* perihal *' . $perihal . '*. Silakan akses aplikasi *' . $nama_app . '* - ' . $nama_pengadilan . ' untuk menindaklanjuti. Demikian diinformasikan, Terima Kasih atas perhatian.';
@@ -404,11 +408,11 @@ class ModelSias extends CI_Model
             }
 
             $dataProgres = array(
-                'id_sm' => $data['register_id'],
-                'userid' => $data['pengguna_id'],
+                'id_sm' => $register_id,
+                'userid' => $this->session->userdata('userid'),
                 'status' => $status_progres,
                 'tujuan' => $tujuanProgres,
-                'ket' => $data['keterangan'],
+                'ket' => $ket_progres,
                 'created_by' => $penginput,
                 'created_on' => date("Y-m-d H:i:s")
             );
@@ -423,7 +427,7 @@ class ModelSias extends CI_Model
 
             $dataNotif = [
                 'jenis_pesan' => 'surat',
-                'id_pemohon' => $this->session->userdata("id_pegawai"),
+                'id_pemohon' => $this->session->userdata("pegawai_id"),
                 'pesan' => $pesan,
                 'id_tujuan' => $tujuanNotif,
                 'created_by' => $penginput,
@@ -432,7 +436,7 @@ class ModelSias extends CI_Model
 
             $this->kirim_notif($dataNotif);
             $querySimpanProgres = $this->simpan_data('status_surat_masuk', $dataProgres);
-            $queryUpdateSM = $this->pembaharuan_data('register_surat_masuk', $data_sm, 'id', $data['register_id']);
+            $queryUpdateSM = $this->pembaharuan_data('register_surat_masuk', $data_sm, 'id', $register_id);
 
             if ($querySimpanProgres == '1' && $queryUpdateSM == '1') {
                 $this->apihelper->post('apiclient/simpan_data', $dataNotif);
@@ -447,9 +451,9 @@ class ModelSias extends CI_Model
                 # Progres surat Diteruskan ke Ketua
                 $tujuan_sm = '1';
                 $status_progres = '1';
-                $tujuanProgres = $data['progres'];
-                if (!$data['keterangan']) {
-                    $data['keterangan'] = '-';
+                $tujuanProgres = $progres;
+                if (!$ket_progres) {
+                    $ket_progres = '-';
                 }
 
                 $queryPlh = $this->get_seleksi($this->db_sso . '.v_plh', 'plh_id_jabatan', '1');
@@ -488,32 +492,30 @@ class ModelSias extends CI_Model
                     $penginput = $this->session->userdata('fullname');
                 }
 
-                if (!$data['keterangan']) {
+                if (!$ket_progres) {
                     return json_encode(array('success' => false, 'message' => 'Keterangan Disposisi tidak boleh kosong'));
                 }
 
                 # Progres surat Disposisi
-                for ($i = 0; $i < count($data['jabatan']); $i++) {
-                    # die(var_dump($jabatan[$i]));
-                    # $queryUser = $this->model->get_seleksi('v_users', 'jab_id', $jabatan[$i]);
-                    $queryPlh = $this->get_seleksi($this->db_sso . '.v_plh', 'plh_id_jabatan', $data['jabatan'][$i]);
+                foreach($data['jabatan'] as $jabatan_id) {
+                    $queryPlh = $this->get_seleksi($this->db_sso . '.v_plh', 'plh_id_jabatan', $jabatan_id);
 
                     if ($queryPlh->row()->pegawai_id != null) {
                         $tujuanNotif = $queryPlh->row()->pegawai_id;
                         $jab = $queryPlh->row()->nama;
-                        $pesan = 'Assalamualaikum Wr. Wb., Yth. *' . $jab . ' (' . $queryPlh->row()->nama_pegawai . ')* ' . $nama_pengadilan . '. Ada disposisi surat masuk baru dari *' . $pengirim . '* perihal *' . $perihal . '* dengan Disposisi : *' . $data['keterangan'] . '*. Silakan akses aplikasi *' . $nama_app . '* - ' . $nama_pengadilan . ' untuk menindaklanjuti. Demikian diinformasikan, Terima Kasih atas perhatian.';
+                        $pesan = 'Assalamualaikum Wr. Wb., Yth. *' . $jab . ' (' . $queryPlh->row()->nama_pegawai . ')* ' . $nama_pengadilan . '. Ada disposisi surat masuk baru dari *' . $pengirim . '* perihal *' . $perihal . '* dengan Disposisi : *' . $ket_progres . '*. Silakan akses aplikasi *' . $nama_app . '* - ' . $nama_pengadilan . ' untuk menindaklanjuti. Demikian diinformasikan, Terima Kasih atas perhatian.';
                     } else {
-                        $queryUser = $this->get_seleksi2($this->db_sso . '.v_users', 'jab_id', $data['jabatan'][$i], 'status_pegawai', '1');
+                        $queryUser = $this->get_seleksi2($this->db_sso . '.v_users', 'jab_id', $jabatan_id, 'status_pegawai', '1');
                         $tujuanNotif = $queryUser->row()->pegawai_id;
                         $jab = $queryUser->row()->jabatan;
-                        $pesan = 'Assalamualaikum Wr. Wb., Yth. *' . $jab . ' (' . $queryUser->row()->fullname . ')* ' . $nama_pengadilan . '. Ada disposisi surat masuk baru dari *' . $pengirim . '* perihal *' . $perihal . '* dengan Disposisi : *' . $data['keterangan'] . '*. Silakan akses aplikasi *' . $nama_app . '* - ' . $nama_pengadilan . ' untuk menindaklanjuti. Demikian diinformasikan, Terima Kasih atas perhatian.';
+                        $pesan = 'Assalamualaikum Wr. Wb., Yth. *' . $jab . ' (' . $queryUser->row()->fullname . ')* ' . $nama_pengadilan . '. Ada disposisi surat masuk baru dari *' . $pengirim . '* perihal *' . $perihal . '* dengan Disposisi : *' . $ket_progres . '*. Silakan akses aplikasi *' . $nama_app . '* - ' . $nama_pengadilan . ' untuk menindaklanjuti. Demikian diinformasikan, Terima Kasih atas perhatian.';
                     }
 
-                    $tujuanProgres = $data['jabatan'][$i];
+                    $tujuanProgres = $jabatan_id;
 
                     $dataNotif = [
                         'jenis_pesan' => 'surat',
-                        'id_pemohon' => $this->session->userdata('id_pegawai'),
+                        'id_pemohon' => $this->session->userdata('pegawai_id'),
                         'pesan' => $pesan,
                         'id_tujuan' => $tujuanNotif,
                         'created_by' => $penginput,
@@ -521,20 +523,20 @@ class ModelSias extends CI_Model
                     ];
 
                     $dataDispo = array(
-                        'id_sm' => $data['register_id'],
+                        'id_sm' => $register_id,
                         'jab_id' => $this->session->userdata('jab_id'),
-                        'disposisi' => $data['jabatan'][$i],
-                        'ket_disposisi' => $data['keterangan'],
+                        'disposisi' => $jabatan_id,
+                        'ket_disposisi' => $ket_progres,
                         'created_by' => $penginput,
                         'created_on' => date("Y-m-d H:i:s")
                     );
 
                     $data = array(
-                        'id_sm' => $data['register_id'],
+                        'id_sm' => $register_id,
                         'userid' => $this->session->userdata('userid'),
                         'status' => $status_progres,
                         'tujuan' => $tujuanProgres,
-                        'ket' => $data['keterangan'],
+                        'ket' => $ket_progres,
                         'created_by' => $penginput,
                         'created_on' => date("Y-m-d H:i:s")
                     );
@@ -561,18 +563,18 @@ class ModelSias extends CI_Model
                 }
 
                 //cek pilihan Progres
-                if ($data['progres'] == '3') {
+                if ($progres == '3') {
                     //Progres Dilaksanakan
-                    if (!$data['keterangan']) {
-                        $keterangan = "Dilaksanakan";
+                    if (!$ket_progres) {
+                        $ket_progres = "Dilaksanakan";
                     }
 
                     $status_progres = '3';
                     $status_sm = '1';
-                } elseif ($data['progres'] == '4') {
+                } elseif ($progres == '4') {
                     //Progres Selesai
-                    if (!$data['keterangan']) {
-                        $keterangan = "Selesai";
+                    if (!$ket_progres) {
+                        $ket_progres = "Selesai";
                     }
 
                     $status_progres = '4';
@@ -589,11 +591,11 @@ class ModelSias extends CI_Model
                 );
 
                 $data = array(
-                    'id_sm' => $data['register_id'],
-                    'userid' => $data['pengguna_id'],
+                    'id_sm' => $register_id,
+                    'userid' => $this->session->userdata('userid'),
                     'status' => $status_progres,
                     'tujuan' => $this->session->userdata('jab_id'),
-                    'ket' => $keterangan,
+                    'ket' => $ket_progres,
                     'created_by' => $penginput,
                     'created_on' => date("Y-m-d H:i:s")
                 );
@@ -602,17 +604,17 @@ class ModelSias extends CI_Model
             }
 
             //query untuk update data Surat Masuk
-            $queryUpdateSM = $this->pembaharuan_data('register_surat_masuk', $data_sm, 'id', $data['register_id']);
+            $queryUpdateSM = $this->pembaharuan_data('register_surat_masuk', $data_sm, 'id', $register_id);
 
             //cek apakah proses disposisi
-            if ($data['progres'] == '1') {
+            if ($progres == '1') {
                 # Bukan Disposisi
                 $data_progres = array(
-                    'id_sm' => $data['register_id'],
-                    'userid' => $data['pengguna_id'],
+                    'id_sm' => $register_id,
+                    'userid' => $this->session->userdata('userid'),
                     'status' => $status_progres,
                     'tujuan' => $tujuanProgres,
-                    'ket' => $data['keterangan'],
+                    'ket' => $ket_progres,
                     'created_by' => $penginput,
                     'created_on' => date("Y-m-d H:i:s")
                 );
@@ -622,7 +624,7 @@ class ModelSias extends CI_Model
                 if ($queryUpdateSM == '1' && $queryStatus == '1') {
                     $dataNotif = [
                         'jenis_pesan' => 'surat',
-                        'id_pemohon' => $this->session->userdata("id_pegawai"),
+                        'id_pemohon' => $this->session->userdata("pegawai_id"),
                         'pesan' => $pesan,
                         'id_tujuan' => $tujuanNotif,
                         'created_by' => $penginput,
@@ -634,7 +636,7 @@ class ModelSias extends CI_Model
                 } else {
                     return json_encode(array('success' => false, 'message' => 'Simpan Data Pelaksanaan Gagal'));
                 }
-            } elseif ($data['progres'] == '2') {
+            } elseif ($progres == '2') {
                 # Disposisi
                 if ($queryStatus == '1' && $queryDispo == '1') {
                     return json_encode(array('success' => true, 'message' => 'Simpan Data Pelaksanaan Berhasil, Notifikasi Akan Segera Dikirim'));
