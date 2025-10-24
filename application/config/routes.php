@@ -28,4 +28,6 @@ $route['aktif_peran'] = 'HalamanUtama/aktif_peran';
 
 $route['cetak_disposisi'] = 'HalamanSuratMasuk/cetak_lembar_disposisi';
 
+$route['hapus_surat_masuk'] = 'HalamanSuratMasuk/hapus_surat_masuk';
+
 $route['keluar'] = 'HalamanUtama/keluar';

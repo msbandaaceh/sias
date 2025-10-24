@@ -129,8 +129,6 @@
                                                 if (in_array($peran, ['admin', 'penelaah'])) {
                                                     ?>
                                                     <td>
-                                                        <?php $idEncrypt = str_replace('/', '___', $this->encryption->encrypt($item->id));
-                                                        ?>
                                                         <div class="dropdown">
                                                             <button type="button" class="btn p-0 dropdown-toggle hide-arrow"
                                                                 data-toggle="dropdown">
@@ -142,7 +140,7 @@
                                                                     data-toggle="modal"><i class="bx bx-edit-alt me-1"></i>
                                                                     EDIT</button>
                                                                 <a class="dropdown-item" id="hapus" href="#" data-toggle="modal"
-                                                                    data-target="#hapusModal" data-id="<?= $idEncrypt; ?>"><i
+                                                                    data-target="#hapusModal" data-id="<?= base64_encode($this->encryption->encrypt($item->id)) ?>"><i
                                                                         class="bx bx-trash me-1"></i>
                                                                     HAPUS</a>
                                                             </div>

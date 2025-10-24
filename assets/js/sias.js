@@ -17,9 +17,30 @@ $(function () {
         $('#data_surat_tab').tab('show');
     });
 
-    $(document).on("click", "#hapus", function () {
-        var id = $(this).data('id');
-        $('#hapusSM').attr('href', 'hapus_sm/' + id);
+    $(document).on("click", "#hapusSM", function () {
+        var id = $('#hapus').data('id');
+        console.log(id);
+        $.ajax({
+            url: 'hapus_surat_masuk',
+            method: 'POST',
+            data: {
+                suratId: id
+            },
+            dataType: 'json',
+            success: function (res) {
+                if (res.success) {
+                    toastr.success(res.message);
+                    $('body').removeClass('modal-open');
+                    $('.modal-backdrop').remove();
+                    loadPage('arsip_sm');
+                } else {
+                    toastr.error(res.message);
+                }
+            },
+            error: function () {
+                toastr.error('Terjadi kesalahan saat menyimpan data.');
+            }
+        });
     })
 
     $(document).on('submit', '#formLaporanSM', function (e) {

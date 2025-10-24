@@ -251,4 +251,16 @@ class HalamanSuratMasuk extends MY_Controller
 
         echo json_encode(['status' => 'success', 'data' => $data]);
     }
+
+    public function hapus_surat_masuk()
+    {
+        $id = $this->encryption->decrypt(base64_decode($this->input->post('suratId')));
+        
+        $result = $this->model->hapus_data('register_surat_masuk', $id);
+        if ($result === 1) {
+            echo json_encode(['success' => true, 'message' => 'Surat Masuk berhasil dihapus']);
+        } else {
+            echo json_encode(['success' => false, 'message' => 'Gagal menghapus Surat Masuk']);
+        }
+    }
 }

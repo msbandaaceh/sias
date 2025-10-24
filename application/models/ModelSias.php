@@ -497,7 +497,7 @@ class ModelSias extends CI_Model
                 }
 
                 # Progres surat Disposisi
-                foreach($data['jabatan'] as $jabatan_id) {
+                foreach ($data['jabatan'] as $jabatan_id) {
                     $queryPlh = $this->get_seleksi($this->db_sso . '.v_plh', 'plh_id_jabatan', $jabatan_id);
 
                     if ($queryPlh->row()->pegawai_id != null) {
@@ -939,5 +939,19 @@ class ModelSias extends CI_Model
         $this->db->where("created_on <=", $tgl);
         $this->db->where('id_sm', $id);
         return $this->db->select('*')->from('v_progres_surat')->get()->result();
+    }
+
+    public function hapus_data($tabel, $id)
+    {
+        try {
+            $this->db->where('id', $id);
+            $this->db->delete('register_surat_masuk');
+            $title = "Hapus Surat Masuk [Surat Masuk=<b>" . $id . "</b>]<br />Hapus tabel <b>sias_arsip_sm</b>]";
+            $descrip = '';
+            $this->add_audittrail("INSERT", $title, $tabel, $descrip);
+            return 1;
+        } catch (Exception $e) {
+            return $e;
+        }
     }
 }
