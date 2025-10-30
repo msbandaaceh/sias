@@ -27,12 +27,30 @@ class HalamanUtama extends MY_Controller
             'laporan_sk',
             'laporan_disposisi',
             'laporan_progres',
-            'laporan_arsip'
+            'laporan_arsip',
+            'panduan',
+            'dokumentasi'
         ];
 
         if (in_array($halaman, $allowed)) {
             $data['peran'] = $this->session->userdata('peran');
             $data['page'] = $halaman;
+            
+            // Cek akses halaman berdasarkan peran
+            if ($halaman == 'panduan') {
+                // Panduan hanya untuk admin, penelaah, operator, pejabat
+                if (!in_array($data['peran'], ['admin', 'penelaah', 'operator', 'pejabat'])) {
+                    show_404();
+                    return;
+                }
+            } elseif ($halaman == 'dokumentasi') {
+                // Dokumentasi hanya untuk admin
+                if ($data['peran'] != 'admin') {
+                    show_404();
+                    return;
+                }
+            }
+            
             if ($halaman == 'arsip_sm') {
                 $data['arsip_sm'] = $this->model->all_sm_data();
             } elseif ($halaman == 'arsip_sk') {

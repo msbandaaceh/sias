@@ -140,7 +140,8 @@
                                                                     data-toggle="modal"><i class="bx bx-edit-alt me-1"></i>
                                                                     EDIT</button>
                                                                 <a class="dropdown-item" id="hapus" href="#" data-toggle="modal"
-                                                                    data-target="#hapusModal" data-id="<?= base64_encode($this->encryption->encrypt($item->id)) ?>"><i
+                                                                    data-target="#hapusModal"
+                                                                    data-id="<?= base64_encode($this->encryption->encrypt($item->id)) ?>"><i
                                                                         class="bx bx-trash me-1"></i>
                                                                     HAPUS</a>
                                                             </div>
@@ -387,8 +388,7 @@
                         </div>
                         <div class="card-body">
                             <div class="tab-content" id="tab_surat_content">
-                                <div class="tab-pane" id="view_surat" role="tabpanel"
-                                    aria-labelledby="view_surat_tab">
+                                <div class="tab-pane" id="view_surat" role="tabpanel" aria-labelledby="view_surat_tab">
                                     <span id="dokumen_detil"></span>
                                 </div>
                                 <div class="tab-pane fade" id="progres_surat" role="tabpanel"
