@@ -9,7 +9,7 @@
                 </div>
                 <div class="col-sm-6">
                     <ol class="breadcrumb float-sm-right">
-                        <li class="breadcrumb-item"><a href="#" data-page="dashboard">Surat</a></li>
+                        <li class="breadcrumb-item"><a href="javascript:;" data-page="dashboard">Surat</a></li>
                         <li class="breadcrumb-item active">Disposisi Surat Masuk</li>
                     </ol>
                 </div>

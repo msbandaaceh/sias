@@ -611,7 +611,7 @@
             loadPage('dashboard');
 
             // Navigasi SPA
-            $('[data-page]').on('click', function (e) {
+            $(document).on('click', '[data-page]', function (e) {
                 e.preventDefault();
                 let page = $(this).data('page');
                 loadPage(page);

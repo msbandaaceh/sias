@@ -58,7 +58,41 @@ class HalamanUtama extends MY_Controller
             } elseif ($halaman == 'arsip_digital') {
                 $halaman = '500';
             } elseif ($halaman == 'dashboard') {
-                $data['jumlah_sm'] = count($this->model->all_sm_data());
+                // Handle all_sm_data dengan aman
+                $all_sm_data = $this->model->all_sm_data();
+                $data['jumlah_sm'] = (is_array($all_sm_data) || is_object($all_sm_data)) ? count($all_sm_data) : 0;
+                $data['jumlah_sk'] = 0; // Placeholder untuk surat keluar
+                $data['jumlah_arsip_digital'] = 0; // Placeholder untuk arsip digital
+                
+                // Data untuk dashboard berdasarkan peran
+                if (in_array($data['peran'], ['admin', 'penelaah', 'pejabat'])) {
+                    $jab_id = $this->session->userdata('jab_id');
+                    
+                    // Validasi surat masuk - handle jika return integer
+                    $validasi_data = $this->model->validasi_surat_masuk($jab_id);
+                    $data['jumlah_validasi'] = (is_array($validasi_data) || is_object($validasi_data)) ? count($validasi_data) : 0;
+                    
+                    // Register surat masuk
+                    $register_data = $this->model->register_surat_masuk($jab_id);
+                    $data['jumlah_surat_masuk'] = (is_array($register_data) || is_object($register_data)) ? count($register_data) : 0;
+                    
+                    // Disposisi surat masuk
+                    $disposisi_data = $this->model->disposisi_surat_masuk($jab_id);
+                    $data['jumlah_disposisi'] = (is_array($disposisi_data) || is_object($disposisi_data)) ? count($disposisi_data) : 0;
+                    
+                    // Surat terbaru (5 terakhir)
+                    $all_sm = $this->model->all_sm_data();
+                    if (is_array($all_sm) && count($all_sm) > 0) {
+                        $data['surat_terbaru'] = array_slice($all_sm, 0, 5);
+                    } else {
+                        $data['surat_terbaru'] = array();
+                    }
+                } else {
+                    $data['jumlah_validasi'] = 0;
+                    $data['jumlah_surat_masuk'] = 0;
+                    $data['jumlah_disposisi'] = 0;
+                    $data['surat_terbaru'] = array();
+                }
             } elseif ($halaman == 'validasi_sm') {
                 $data['validasi'] = $this->model->validasi_surat_masuk($this->session->userdata('jab_id'));
             } elseif ($halaman == 'surat_masuk') {
