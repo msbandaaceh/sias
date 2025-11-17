@@ -10,7 +10,7 @@ class ApiHelper
     {
         // Ambil instance CI dan URL API dari config
         $this->CI =& get_instance();
-        $this->url_api = rtrim($this->CI->session->userdata('sso_server'), '/') . '/';
+        $this->url_api = rtrim($this->CI->config->item('sso_server'), '/') . '/';
     }
 
     /**
@@ -52,6 +52,28 @@ class ApiHelper
     {
         $full_url = $this->url_api . ltrim($endpoint, '/');
 
+        $ch = curl_init();
+
+        curl_setopt($ch, CURLOPT_URL, $full_url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload));
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array_merge([
+            'Content-Type: application/json'
+        ], $headers));
+
+        $response = curl_exec($ch);
+        $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+
+        return [
+            'status_code' => $http_code,
+            'response' => json_decode($response, true)
+        ];
+    }
+
+    public function post_url($full_url, $payload = [], $headers = [])
+    {
         $ch = curl_init();
 
         curl_setopt($ch, CURLOPT_URL, $full_url);

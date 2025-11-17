@@ -49,6 +49,7 @@ class HalamanSuratMasuk extends MY_Controller
             'tgl_surat' => $this->input->post('tgl_surat'),
             'tgl_terima' => $this->input->post('tgl_terima'),
             'ket' => $this->input->post('ket'),
+            'no_hp' => $this->input->post('no_hp'), // Field baru untuk nomor HP
             'created_by' => $this->session->userdata('fullname'),
             'created_on' => date('Y-m-d H:i:s'),
             'file' => null
@@ -98,7 +99,20 @@ class HalamanSuratMasuk extends MY_Controller
 
         $result = $this->model->simpan_sm($data);
 
-        if ($result === true) {
+        if (is_array($result) && isset($result['success']) && $result['success'] === true) {
+            $message = 'Surat Masuk berhasil disimpan';
+            if (isset($result['tracking_code'])) {
+                $message .= '. Tracking Code: ' . $result['tracking_code'];
+                if (!empty($data['no_hp'])) {
+                    $message .= '. Notifikasi telah dikirim ke nomor HP yang terdaftar.';
+                }
+            }
+            echo json_encode([
+                'success' => true, 
+                'message' => $message,
+                'tracking_code' => isset($result['tracking_code']) ? $result['tracking_code'] : null
+            ]);
+        } elseif ($result === true) {
             echo json_encode(['success' => true, 'message' => 'Surat Masuk berhasil disimpan']);
         } elseif ($result == 'penelaah_kosong') {
             $file_path = FCPATH . 'assets/dokumen/' . $upload_data['file_name'];

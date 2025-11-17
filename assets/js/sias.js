@@ -105,8 +105,19 @@ $(function () {
             dataType: 'json',
             success: function (res) {
                 if (res.success) {
+                    // Tampilkan tracking code jika ada
+                    if (res.tracking_code) {
+                        const trackingUrl = '<?= base_url() ?>tracking?code=' + res.tracking_code;
+                        toastr.success(res.message + '<br><a href="' + trackingUrl + '" target="_blank" class="text-white"><u>Lihat Halaman Tracking</u></a>', '', {
+                            timeOut: 10000,
+                            closeButton: true,
+                            progressBar: true
+                        });
+                    } else {
+                        toastr.success(res.message);
+                    }
+                    
                     $('#tambah-modal').modal('hide');
-                    toastr.success(res.message);
                     $('body').removeClass('modal-open');
                     $('.modal-backdrop').remove();
                     loadPage('arsip_sm');
@@ -163,6 +174,8 @@ function loadPage(page) {
     `);
     $.get("halamanutama/page/" + page, function (data) {
         $('#app').html(data);
+        // Initialize time update setelah halaman dimuat
+        setTimeout(initTimeUpdate, 100);
     }).fail(function () {
         $('#app').html(`
             <div class="page-wrapper">
@@ -422,6 +435,7 @@ function ModalInputSurat(id) {
             $("#tgl_terima").val('');
             $("#ket").val('');
             $("#file").val('');
+            $("#no_hp").val('');
             $("#judul").append(json.judul);
             $("#no_agenda").val(json.no_agenda);
             $("#pengirim").val(json.pengirim);
@@ -432,6 +446,16 @@ function ModalInputSurat(id) {
             $("#tgl_terima").val(json.tgl_terima);
             $("#ket").val(json.ket);
             $("#file").val(json.file);
+            $("#no_hp").val(json.no_hp || '');
+            
+            // Handle tracking code display
+            if (json.tracking_code) {
+                $("#tracking_code_readonly").val(json.tracking_code);
+                $("#tracking_link").attr('href', '<?= base_url() ?>tracking?code=' + json.tracking_code);
+                $("#tracking_code_display").show();
+            } else {
+                $("#tracking_code_display").hide();
+            }
 
             $('#tglsurat, #tglterima').datetimepicker({
                 format: 'YYYY-MM-DD'
@@ -444,6 +468,14 @@ function ModalInputSurat(id) {
             $('#table_pegawai').DataTable().ajax.reload();
         }
     });
+}
+
+function copyTrackingCode() {
+    const trackingCode = document.getElementById('tracking_code_readonly');
+    trackingCode.select();
+    trackingCode.setSelectionRange(0, 99999);
+    document.execCommand('copy');
+    toastr.success('Tracking code berhasil disalin!');
 }
 
 function BukaDetilSurat(status, id) {
@@ -918,3 +950,45 @@ function formatPegawaiSelection(option) {
 
     return `${nama} > ${jabatan}`;
 }
+
+// Update waktu real-time (hanya jika elemen ada)
+function updateTime() {
+    const timeElement = document.getElementById('current-time');
+    const serverTimeElement = document.getElementById('server-time');
+    
+    if (timeElement || serverTimeElement) {
+        const now = new Date();
+        const hours = String(now.getHours()).padStart(2, '0');
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        const seconds = String(now.getSeconds()).padStart(2, '0');
+        const timeString = hours + ':' + minutes + ':' + seconds;
+        
+        if (timeElement) {
+            timeElement.textContent = timeString;
+        }
+        if (serverTimeElement) {
+            serverTimeElement.textContent = timeString;
+        }
+    }
+}
+
+// Initialize time update - dipanggil setiap kali halaman dimuat
+function initTimeUpdate() {
+    const timeElement = document.getElementById('current-time');
+    const serverTimeElement = document.getElementById('server-time');
+    
+    // Hapus interval sebelumnya jika ada
+    if (window.timeUpdateInterval) {
+        clearInterval(window.timeUpdateInterval);
+    }
+    
+    if (timeElement || serverTimeElement) {
+        updateTime(); // Initial call
+        window.timeUpdateInterval = setInterval(updateTime, 1000);
+    }
+}
+
+// Initialize saat document ready
+$(document).ready(function() {
+    initTimeUpdate();
+});
