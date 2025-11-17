@@ -31,3 +31,10 @@ $route['cetak_disposisi'] = 'HalamanSuratMasuk/cetak_lembar_disposisi';
 $route['hapus_surat_masuk'] = 'HalamanSuratMasuk/hapus_surat_masuk';
 
 $route['keluar'] = 'HalamanUtama/keluar';
+
+// DataTables server-side processing untuk arsip surat masuk
+$route['arsip_sm_datatables'] = 'HalamanUtama/get_arsip_sm_datatables';
+
+// Tracking routes (public access)
+$route['tracking'] = 'Tracking/index';
+$route['tracking/cek'] = 'Tracking/cek';
