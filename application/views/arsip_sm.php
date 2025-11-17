@@ -40,150 +40,43 @@
                         }
                         ?>
                         <div class="card-body">
-                            <?php
-                            if ($arsip_sm) {
-                                $no = 1;
-                                ?>
-                                <table id="tblSM" class="table table-bordered table-hover">
-                                    <thead>
-                                        <tr>
-                                            <th>NO</th>
-                                            <th>NOMOR AGENDA</th>
-                                            <th>NOMOR SURAT</th>
-                                            <th>PENGIRIM</th>
-                                            <th>PERIHAL</th>
-                                            <th>TANGGAL SURAT</th>
-                                            <th>TANGGAL TERIMA</th>
-                                            <?php
-                                            if (in_array($peran, ['admin', 'penelaah'])) {
-                                                ?>
-                                                <th>AKSI</th>
-                                            <?php } ?>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <?php foreach ($arsip_sm as $item) { ?>
-                                            <tr>
-                                                <td>
-                                                    <?= $no; ?>
-                                                </td>
-                                                <td>
-                                                    <?= $item->no_agenda;
-                                                    ?>
-                                                    <span class="badge badge-success">
-                                                        <div class="card-tools">
-                                                            <?php
-                                                            //Surat Dibaca
-                                                            if ($item->dibaca) {
-                                                                ?><i class="fas fa-check"
-                                                                    title="Surat Sudah Dibaca"></i>
-                                                                <?php
-                                                            }
-                                                            ?>
-                                                        </div>
-                                                    </span>
-                                                    <span class="badge badge-success">
-                                                        <div class="card-tools">
-                                                            <?php
-                                                            //Surat Ditindaklanjuti
-                                                            if ($item->status) {
-                                                                if ($item->status == 1) {
-                                                                    ?><i class="fas fa-hourglass-half"
-                                                                        title="Surat Sedang Ditindaklanjuti"></i>
-                                                                    <?php
-                                                                } elseif ($item->status == 2) {
-                                                                    ?><i class="fas fa-thumbs-up"
-                                                                        title="Surat Selesai Diproses"></i>
-                                                                    <?php
-                                                                }
-                                                            } else {
-                                                                ?>
-                                                                <i class="fas fa-info" title="Surat Belum Diproses"></i>
-                                                                <?php
-                                                            }
-                                                            ?>
-                                                        </div>
-                                                    </span>
-                                                </td>
-                                                <td><button class="dropdown-item" data-target="#detilModal"
-                                                        onclick="BukaDetilSurat('arsip', '<?= base64_encode($this->encryption->encrypt($item->id)) ?>')"
-                                                        data-toggle="modal"
-                                                        style="background: transparent; border: none !important;"><i
-                                                            class="bx bx-edit-alt me-1"></i>
-                                                        <p class="text-info"><b><?= $item->no_sm; ?></b></p>
-                                                    </button>
-                                                </td>
-                                                <td>
-                                                    <?= $item->pengirim; ?>
-                                                </td>
-                                                <td>
-                                                    <?= $item->perihal; ?>
-                                                </td>
-                                                <td>
-                                                    <?= $item->tgl_surat; ?>
-                                                </td>
-                                                <td>
-                                                    <?= $item->tgl_terima; ?>
-                                                </td>
-                                                <?php
-                                                if (in_array($peran, ['admin', 'penelaah'])) {
-                                                    ?>
-                                                    <td>
-                                                        <div class="dropdown">
-                                                            <button type="button" class="btn p-0 dropdown-toggle hide-arrow"
-                                                                data-toggle="dropdown">
-                                                                <i class="fas fa-cogs"></i>
-                                                            </button>
-                                                            <div class="dropdown-menu">
-                                                                <button class="dropdown-item" data-target="#tambah-modal"
-                                                                    onclick="ModalInputSurat('<?= base64_encode($this->encryption->encrypt($item->id)) ?>')"
-                                                                    data-toggle="modal"><i class="bx bx-edit-alt me-1"></i>
-                                                                    EDIT</button>
-                                                                <a class="dropdown-item" id="hapus" href="#" data-toggle="modal"
-                                                                    data-target="#hapusModal"
-                                                                    data-id="<?= base64_encode($this->encryption->encrypt($item->id)) ?>"><i
-                                                                        class="bx bx-trash me-1"></i>
-                                                                    HAPUS</a>
-                                                            </div>
-                                                        </div>
-                                                    </td>
-                                                    <?php
-                                                } ?>
-                                            </tr>
-                                            <?php $no++;
-                                        } ?>
-                                    </tbody>
-                                    <tfoot>
-                                        <tr>
-                                            <th>NO</th>
-                                            <th>NOMOR AGENDA</th>
-                                            <th>NOMOR SURAT</th>
-                                            <th>PENGIRIM</th>
-                                            <th>PERIHAL</th>
-                                            <th>TANGGAL SURAT</th>
-                                            <th>TANGGAL TERIMA</th>
-                                            <?php
-                                            if (in_array($peran, ['admin', 'penelaah'])) {
-                                                ?>
-                                                <th>AKSI</th>
-                                            <?php } ?>
-                                        </tr>
-                                    </tfoot>
-                                </table>
-                                <?php
-
-                            } else {
-                                ?>
-                                <div class="callout callout-danger">
-                                    <h5>
-                                        <i class="fas fa-info"></i>
-                                        Perhatian !!
-                                    </h5>
-                                    Tidak ada arsip surat masuk. Terimakasih.
-                                </div>
-                                <?php
-                            }
-                            ?>
+                            <table id="tblSM" class="table table-bordered table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>NO</th>
+                                        <th>NOMOR AGENDA</th>
+                                        <th>NOMOR SURAT</th>
+                                        <th>PENGIRIM</th>
+                                        <th>PERIHAL</th>
+                                        <th>TANGGAL SURAT</th>
+                                        <th>TANGGAL TERIMA</th>
+                                        <?php
+                                        if (in_array($peran, ['admin', 'penelaah'])) {
+                                            ?>
+                                            <th>AKSI</th>
+                                        <?php } ?>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Data akan di-load via AJAX (server-side processing) -->
+                                </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <th>NO</th>
+                                        <th>NOMOR AGENDA</th>
+                                        <th>NOMOR SURAT</th>
+                                        <th>PENGIRIM</th>
+                                        <th>PERIHAL</th>
+                                        <th>TANGGAL SURAT</th>
+                                        <th>TANGGAL TERIMA</th>
+                                        <?php
+                                        if (in_array($peran, ['admin', 'penelaah'])) {
+                                            ?>
+                                            <th>AKSI</th>
+                                        <?php } ?>
+                                    </tr>
+                                </tfoot>
+                            </table>
                         </div>
                     </div>
                 </div>
@@ -274,6 +167,41 @@
                                             <div class="input-group-text"><i class="fa fa-calendar"></i></div>
                                         </div>
                                     </div>
+                                </div>
+                            </div>
+                            <div class="row g-2">
+                                <div class="col-lg-6 col-sm-12 mb-3">
+                                    <label for="no_hp" class="form-label">
+                                        <i class="fas fa-phone"></i> NOMOR HP PENGIRIM
+                                    </label>
+                                    <small class="text-muted"> (Opsional - untuk notifikasi tracking)</small>
+                                    <input type="text" name="no_hp" id="no_hp" class="form-control"
+                                        placeholder="Contoh: 081234567890" 
+                                        pattern="[0-9]{10,15}"
+                                        title="Masukkan nomor HP 10-15 digit" />
+                                    <small class="form-text text-muted">
+                                        <i class="fas fa-info-circle"></i> Jika diisi, sistem akan mengirimkan notifikasi 
+                                        berisi Tracking Code dan link untuk melacak status surat.
+                                    </small>
+                                </div>
+                                <div class="col-lg-6 col-sm-12 mb-3" id="tracking_code_display" style="display: none;">
+                                    <label class="form-label">
+                                        <i class="fas fa-barcode"></i> TRACKING CODE
+                                    </label>
+                                    <div class="input-group">
+                                        <input type="text" id="tracking_code_readonly" class="form-control" readonly />
+                                        <div class="input-group-append">
+                                            <button type="button" class="btn btn-info" onclick="copyTrackingCode()" title="Copy Tracking Code">
+                                                <i class="fas fa-copy"></i>
+                                            </button>
+                                            <a href="#" id="tracking_link" target="_blank" class="btn btn-success" title="Buka Halaman Tracking">
+                                                <i class="fas fa-external-link-alt"></i>
+                                            </a>
+                                        </div>
+                                    </div>
+                                    <small class="form-text text-muted">
+                                        <i class="fas fa-info-circle"></i> Tracking code ini akan otomatis dibuat saat surat baru disimpan.
+                                    </small>
                                 </div>
                             </div>
                             <div class="row g-2">
@@ -419,8 +347,51 @@
 
 <script>
     $(function () {
-        $("#tblSM").DataTable({
-            "responsive": true, "lengthChange": false, "autoWidth": false,
+        // Server-side processing DataTables untuk optimasi query
+        var table = $("#tblSM").DataTable({
+            "processing": true,
+            "serverSide": true,
+            "responsive": true,
+            "lengthChange": true,
+            "autoWidth": false,
+            "pageLength": 25, // Default 25 records per page
+            "lengthMenu": [[10, 25, 50, 100, -1], [10, 25, 50, 100, "Semua"]],
+            "ajax": {
+                "url": "<?= site_url('arsip_sm_datatables') ?>",
+                "type": "POST",
+                "data": function(d) {
+                    // DataTables akan otomatis mengirim parameter draw, start, length, search, order
+                }
+            },
+            "columns": [
+                { "data": 0, "orderable": false, "searchable": false }, // NO
+                { "data": 1, "orderable": true },  // NOMOR AGENDA
+                { "data": 2, "orderable": true },  // NOMOR SURAT
+                { "data": 3, "orderable": true },  // PENGIRIM
+                { "data": 4, "orderable": true },  // PERIHAL
+                { "data": 5, "orderable": true },  // TANGGAL SURAT
+                { "data": 6, "orderable": true },  // TANGGAL TERIMA
+                <?php if (in_array($peran, ['admin', 'penelaah'])): ?>
+                { "data": 7, "orderable": false, "searchable": false }  // AKSI
+                <?php endif; ?>
+            ],
+            "order": [[0, "desc"]], // Default order by ID DESC (kolom 0 akan di-map ke id di server)
+            "language": {
+                "processing": "Memproses data...",
+                "search": "Cari:",
+                "lengthMenu": "Tampilkan _MENU_ data per halaman",
+                "info": "Menampilkan _START_ sampai _END_ dari _TOTAL_ data",
+                "infoEmpty": "Menampilkan 0 sampai 0 dari 0 data",
+                "infoFiltered": "(difilter dari _MAX_ total data)",
+                "zeroRecords": "Tidak ada data yang ditemukan",
+                "emptyTable": "Tidak ada data dalam tabel",
+                "paginate": {
+                    "first": "Pertama",
+                    "last": "Terakhir",
+                    "next": "Selanjutnya",
+                    "previous": "Sebelumnya"
+                }
+            },
             "buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"]
         }).buttons().container().appendTo('#tblSM_wrapper .col-md-6:eq(0)');
     });
