@@ -18,6 +18,7 @@ class ModelSias extends CI_Model
 
         // Inisialisasi variabel private dengan nilai dari session
         $this->db_sso = $this->session->userdata('sso_db');
+        $this->url_ptsp = $this->config->item('ptsp_server'); # Domain PTSP Server
     }
 
     private function add_audittrail($action, $title, $table, $descrip)
@@ -47,6 +48,17 @@ class ModelSias extends CI_Model
         ];
 
         $this->apihelper->post('apiclient/simpan_data', $params);
+    }
+
+    private function kirim_notif_ptsp($data)
+    {
+        $params = [
+            'tabel' => 'sys_notif',
+            'data' => $data,
+            'apine' => 'M4hk4m4hBn4@2025'
+        ];
+
+        $this->apihelper->post_url($this->url_ptsp . 'api/simpan_data', $params);
     }
 
     public function cek_aplikasi($id)
@@ -141,11 +153,94 @@ class ModelSias extends CI_Model
         return $this->db->select('*')->from('register_surat_masuk')->get()->result();
     }
 
+    /**
+     * Get data surat masuk untuk server-side processing DataTables
+     * OPTIMASI: Menggunakan pagination, search, dan sorting di server-side
+     * 
+     * @param int $start Start offset untuk pagination
+     * @param int $length Jumlah record per halaman
+     * @param string $search Search keyword
+     * @param int $order_column Index kolom untuk sorting (0-based, kolom pertama adalah NO yang tidak di-order)
+     * @param string $order_dir Direction sorting (ASC/DESC)
+     * @return array Array dengan data dan total records
+     */
+    public function get_arsip_sm_datatables($start = 0, $length = 10, $search = '', $order_column = 0, $order_dir = 'DESC')
+    {
+        // Get total records (tanpa filter)
+        $total_records = $this->db->count_all('register_surat_masuk');
+        
+        // Build query untuk filtered count (query terpisah)
+        $this->db->from('register_surat_masuk');
+        
+        // Search filter untuk count
+        if (!empty($search)) {
+            $this->db->group_start();
+            $this->db->like('no_agenda', $search);
+            $this->db->or_like('no_sm', $search);
+            $this->db->or_like('pengirim', $search);
+            $this->db->or_like('perihal', $search);
+            $this->db->or_like('tgl_surat', $search);
+            $this->db->or_like('tgl_terima', $search);
+            $this->db->group_end();
+        }
+        
+        // Get total filtered - gunakan count_all_results dengan reset
+        $total_filtered = $this->db->count_all_results('', false);
+        
+        // Reset query builder untuk query data
+        $this->db->reset_query();
+        
+        // Build query untuk get data
+        $this->db->select('*');
+        $this->db->from('register_surat_masuk');
+        
+        // Apply search filter untuk data
+        if (!empty($search)) {
+            $this->db->group_start();
+            $this->db->like('no_agenda', $search);
+            $this->db->or_like('no_sm', $search);
+            $this->db->or_like('pengirim', $search);
+            $this->db->or_like('perihal', $search);
+            $this->db->or_like('tgl_surat', $search);
+            $this->db->or_like('tgl_terima', $search);
+            $this->db->group_end();
+        }
+        
+        // Order by - mapping kolom DataTables ke kolom database
+        // Kolom DataTables: [NO(0), no_agenda(1), no_sm(2), pengirim(3), perihal(4), tgl_surat(5), tgl_terima(6), aksi(7)]
+        // Kolom database: [id, no_agenda, no_sm, pengirim, perihal, tgl_surat, tgl_terima]
+        $columns = ['id', 'no_agenda', 'no_sm', 'pengirim', 'perihal', 'tgl_surat', 'tgl_terima'];
+        // Adjust order_column: jika order_column = 0 (NO), gunakan id; jika > 0, kurangi 1
+        if ($order_column == 0) {
+            $order_by_column = 'id'; // Default order by id jika kolom NO
+        } else {
+            $db_column_index = $order_column - 1;
+            $order_by_column = isset($columns[$db_column_index]) ? $columns[$db_column_index] : 'id';
+        }
+        $this->db->order_by($order_by_column, $order_dir);
+        
+        // Limit untuk pagination
+        if ($length > 0) {
+            $this->db->limit($length, $start);
+        }
+        
+        // Get data
+        $query = $this->db->get();
+        $data = $query->result();
+        
+        return [
+            'data' => $data,
+            'total_records' => $total_records,
+            'total_filtered' => $total_filtered
+        ];
+    }
+
     public function all_sm_data_filter($tgl_awal, $tgl_akhir)
     {
         $this->db->order_by('created_on', 'DESC');
-        $this->db->where('Date(created_on) >=', $tgl_awal);
-        $this->db->where('Date(created_on) <=', $tgl_akhir);
+        // OPTIMASI: Gunakan range query tanpa fungsi DATE() untuk memungkinkan penggunaan index
+        $this->db->where('created_on >=', $tgl_awal . ' 00:00:00');
+        $this->db->where('created_on <=', $tgl_akhir . ' 23:59:59');
         return $this->db->select('*')->from('register_surat_masuk')->get()->result();
     }
 
@@ -173,7 +268,9 @@ class ModelSias extends CI_Model
                 'tujuan' => '',
                 'perihal' => '',
                 'ket' => '',
-                'file' => ''
+                'file' => '',
+                'no_hp' => '',
+                'tracking_code' => ''
             ];
         }
 
@@ -195,7 +292,9 @@ class ModelSias extends CI_Model
             'tujuan' => $row->tujuan_surat,
             'perihal' => $row->perihal,
             'ket' => $row->ket,
-            'file' => $row->file
+            'file' => $row->file,
+            'no_hp' => isset($row->no_hp) ? $row->no_hp : '',
+            'tracking_code' => isset($row->tracking_code) ? $row->tracking_code : ''
         ];
     }
 
@@ -304,8 +403,99 @@ class ModelSias extends CI_Model
         }
     }
 
+    /**
+     * Generate tracking code unik
+     * Format: SIAS-YYYYMMDD-XXXXXX
+     */
+    public function generate_tracking_code()
+    {
+        $date = date('Ymd');
+        $max_attempts = 10;
+        $attempt = 0;
+
+        do {
+            // Generate 6 karakter random alfanumerik
+            $random = strtoupper(substr(md5(uniqid(rand(), true)), 0, 6));
+            $tracking_code = 'SIAS-' . $date . '-' . $random;
+
+            // Cek apakah sudah ada di database
+            $this->db->where('tracking_code', $tracking_code);
+            $query = $this->db->get('register_surat_masuk');
+
+            $attempt++;
+            if ($attempt >= $max_attempts) {
+                // Fallback: tambah timestamp jika masih duplikat
+                $tracking_code = 'SIAS-' . $date . '-' . strtoupper(substr(md5(time() . rand()), 0, 6));
+                break;
+            }
+        } while ($query->num_rows() > 0);
+
+        return $tracking_code;
+    }
+
+    /**
+     * Get tracking information by tracking code
+     */
+    public function get_tracking_info($tracking_code)
+    {
+        $this->db->select('r.*, 
+            (SELECT COUNT(*) FROM status_surat_masuk WHERE id_sm = r.id) as jumlah_progres');
+        $this->db->from('register_surat_masuk r');
+        $this->db->where('r.tracking_code', strtoupper($tracking_code));
+        $query = $this->db->get();
+        return $query;
+    }
+
+    /**
+     * Get progres surat untuk tracking
+     */
+    public function get_progres_tracking($surat_id)
+    {
+        // Berdasarkan grep, tabel progres_surat menggunakan id_sm
+        // Gunakan select dengan false untuk menghindari escaping pada CASE statement
+        // Field 'tujuan' sudah berisi ID jabatan tujuan (untuk disposisi, ini adalah tujuan disposisi)
+        $this->db->select('p.*', false);
+        $this->db->select('CASE 
+            WHEN p.status = 1 THEN "Diteruskan"
+            WHEN p.status = 2 THEN "Disposisi"
+            WHEN p.status = 3 THEN "Dilaksanakan"
+            WHEN p.status = 4 THEN "Selesai"
+            ELSE "Unknown"
+        END as status_text', false);
+        $this->db->from('status_surat_masuk p');
+        $this->db->where('p.id_sm', $surat_id);
+        $this->db->order_by('p.created_on', 'ASC');
+        return $this->db->get();
+    }
+    
+    /**
+     * Get mapping nama jabatan berdasarkan ID
+     */
+    public function get_nama_jabatan($jab_id)
+    {
+        $jabatan_map = [
+            '1' => 'Ketua',
+            '4' => 'Panitera',
+            '5' => 'Sekretaris',
+            '6' => 'Panitera Muda Gugatan',
+            '7' => 'Panitera Muda Permohonan',
+            '8' => 'Panitera Muda Jinayat',
+            '9' => 'Panitera Muda Hukum',
+            '10' => 'Kepala Sub Bagian Umum dan Keuangan',
+            '11' => 'Kepala Sub Bagian Kepegawaian',
+            '12' => 'Kepala Sub Bagian PTIP'
+        ];
+        
+        return isset($jabatan_map[$jab_id]) ? $jabatan_map[$jab_id] : 'Jabatan Tidak Diketahui';
+    }
+
     public function simpan_sm($data)
     {
+        // Generate tracking code untuk surat baru
+        if (!$data['id']) {
+            $data['tracking_code'] = $this->generate_tracking_code();
+        }
+
         if (!$data['id'])
             $query = $this->db->insert('register_surat_masuk', $data);
         else {
@@ -315,7 +505,12 @@ class ModelSias extends CI_Model
 
         if ($query === true) {
             if (!$data['id']) {
+                // Simpan ID surat yang baru dibuat untuk notifikasi
+                #$surat_id = $this->db->insert_id();
+                $tracking_code = $data['tracking_code'];
+                $no_hp = isset($data['no_hp']) ? $data['no_hp'] : null;
 
+                // Kirim notifikasi ke penelaah
                 $penelaah = array();
                 $penelaah = $this->cari_penelaah();
                 if ($penelaah['id'])
@@ -339,8 +534,24 @@ class ModelSias extends CI_Model
                 ];
 
                 $this->kirim_notif($dataNotif);
-            }
 
+                // Kirim notifikasi ke pengirim jika no_hp diisi
+                if (!empty($no_hp) && !empty($tracking_code)) {
+                    $base_url = base_url();
+                    $tracking_url = $base_url . 'tracking?code=' . $tracking_code;
+                    
+                    $pesan_pengirim = 'Assalamualaikum Wr. Wb. Surat masuk Anda telah diterima dengan nomor surat *' . $data['no_sm'] . '* perihal *' . $data['perihal'] . '*. Tracking Code: *' . $tracking_code . '*. Lacak status surat Anda di: ' . $tracking_url . ' Terima kasih.';
+
+                    $dataNotif = [
+                        'jenis_pesan' => 'sias',
+                        'pesan' => $pesan_pengirim,
+                        'nohp' => $no_hp,
+                        'dibuat' => date('Y-m-d H:i:s')
+                    ];
+    
+                    $this->kirim_notif_ptsp($dataNotif);                    
+                }
+            }
             return $query;
         } else {
             return $query;
