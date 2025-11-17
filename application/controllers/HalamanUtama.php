@@ -52,7 +52,8 @@ class HalamanUtama extends MY_Controller
             }
             
             if ($halaman == 'arsip_sm') {
-                $data['arsip_sm'] = $this->model->all_sm_data();
+                // Tidak perlu load semua data, akan di-load via AJAX (server-side processing)
+                $data['arsip_sm'] = [];
             } elseif ($halaman == 'arsip_sk') {
                 $halaman = '500';
             } elseif ($halaman == 'arsip_digital') {
@@ -281,5 +282,106 @@ class HalamanUtama extends MY_Controller
                 )
             );
         }
+    }
+
+    /**
+     * Handle AJAX request untuk server-side processing DataTables arsip surat masuk
+     * OPTIMASI: Menggunakan pagination di server-side untuk mengurangi beban query
+     */
+    public function get_arsip_sm_datatables()
+    {
+        // Get DataTables parameters
+        $draw = intval($this->input->post('draw'));
+        $start = intval($this->input->post('start'));
+        $length = intval($this->input->post('length'));
+        $search = $this->input->post('search')['value'] ?? '';
+        $order_column = intval($this->input->post('order')[0]['column'] ?? 0);
+        $order_dir = $this->input->post('order')[0]['dir'] ?? 'DESC';
+
+        // Get data from model
+        $result = $this->model->get_arsip_sm_datatables($start, $length, $search, $order_column, $order_dir);
+
+        // Format response untuk DataTables
+        $response = [
+            'draw' => $draw,
+            'recordsTotal' => $result['total_records'],
+            'recordsFiltered' => $result['total_filtered'],
+            'data' => []
+        ];
+
+        // Format data untuk DataTables
+        $no = $start + 1;
+        foreach ($result['data'] as $row) {
+            $response['data'][] = [
+                $no++,
+                $this->format_no_agenda($row),
+                $this->format_no_surat($row),
+                $row->pengirim ?? '',
+                $row->perihal ?? '',
+                $row->tgl_surat ?? '',
+                $row->tgl_terima ?? '',
+                $this->format_aksi($row)
+            ];
+        }
+
+        header('Content-Type: application/json');
+        echo json_encode($response);
+    }
+
+    /**
+     * Format nomor agenda dengan badge status
+     */
+    private function format_no_agenda($row)
+    {
+        $html = ($row->no_agenda ?? '');
+        
+        // Badge untuk status dibaca
+        if (!empty($row->dibaca)) {
+            $html .= ' <span class="badge badge-success"><i class="fas fa-check" title="Surat Sudah Dibaca"></i></span>';
+        }
+        
+        // Badge untuk status surat
+        if (!empty($row->status)) {
+            if ($row->status == 1) {
+                $html .= ' <span class="badge badge-warning"><i class="fas fa-hourglass-half" title="Surat Sedang Ditindaklanjuti"></i></span>';
+            } elseif ($row->status == 2) {
+                $html .= ' <span class="badge badge-success"><i class="fas fa-thumbs-up" title="Surat Selesai Diproses"></i></span>';
+            }
+        } else {
+            $html .= ' <span class="badge badge-info"><i class="fas fa-info" title="Surat Belum Diproses"></i></span>';
+        }
+        
+        return $html;
+    }
+
+    /**
+     * Format nomor surat dengan link detail
+     */
+    private function format_no_surat($row)
+    {
+        $encrypted_id = base64_encode($this->encryption->encrypt($row->id));
+        return '<button class="dropdown-item" data-target="#detilModal" onclick="BukaDetilSurat(\'arsip\', \'' . $encrypted_id . '\')" data-toggle="modal" style="background: transparent; border: none !important;"><i class="bx bx-edit-alt me-1"></i><p class="text-info"><b>' . ($row->no_sm ?? '') . '</b></p></button>';
+    }
+
+    /**
+     * Format kolom aksi (hanya untuk admin dan penelaah)
+     */
+    private function format_aksi($row)
+    {
+        $peran = $this->session->userdata('peran');
+        if (!in_array($peran, ['admin', 'penelaah'])) {
+            return '';
+        }
+
+        $encrypted_id = base64_encode($this->encryption->encrypt($row->id));
+        return '<div class="dropdown">
+            <button type="button" class="btn p-0 dropdown-toggle hide-arrow" data-toggle="dropdown">
+                <i class="fas fa-cogs"></i>
+            </button>
+            <div class="dropdown-menu">
+                <button class="dropdown-item" data-target="#tambah-modal" onclick="ModalInputSurat(\'' . $encrypted_id . '\')" data-toggle="modal"><i class="bx bx-edit-alt me-1"></i>EDIT</button>
+                <a class="dropdown-item" id="hapus" href="#" data-toggle="modal" data-target="#hapusModal" data-id="' . $encrypted_id . '"><i class="bx bx-trash me-1"></i>HAPUS</a>
+            </div>
+        </div>';
     }
 }
