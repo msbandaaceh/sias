@@ -500,9 +500,13 @@
                             <!-- Menu Footer-->
                             <li class="user-footer">
                                 <div class="row">
-                                    <div class="col-12 text-center">
+                                    <div class="col-xl-6 col-lg-6 col-md-12 text-center">
+                                        <a href="<?= $this->config->item('sso_server') ?>"
+                                            class="btn btn-outline-info btn-block"><i class="fas fa-sync-alt"></i> Pindah Layanan</a>
+                                    </div>
+                                    <div class="col-xl-6 col-lg-6 col-md-12 text-center">
                                         <a href="<?= site_url('keluar') ?>"
-                                            class="btn btn-outline-success btn-block">Keluar</a>
+                                            class="btn btn-outline-success btn-block"><i class="fas fa-share-square"></i> Keluar</a>
                                     </div>
                                 </div>
                             </li>
