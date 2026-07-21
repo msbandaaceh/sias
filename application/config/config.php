@@ -76,3 +76,5 @@ $config['proxy_ips'] = '';
 $config['jwt_key'] = 'M4hk4m4hBn4@2025';
 $config['jwt_issuer'] = '.ms-bandaaceh.go.id';
 $config['jwt_expire_time'] = 3600; // 1 jam
+
+$config['api_key'] = 'M4hk4m4hBn4@2025';
