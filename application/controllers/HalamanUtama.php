@@ -380,7 +380,7 @@ class HalamanUtama extends MY_Controller
             </button>
             <div class="dropdown-menu">
                 <button class="dropdown-item" data-target="#tambah-modal" onclick="ModalInputSurat(\'' . $encrypted_id . '\')" data-toggle="modal"><i class="bx bx-edit-alt me-1"></i>EDIT</button>
-                <a class="dropdown-item" id="hapus" href="#" data-toggle="modal" data-target="#hapusModal" data-id="' . $encrypted_id . '"><i class="bx bx-trash me-1"></i>HAPUS</a>
+                <a class="dropdown-item hapus-btn" data-id="' . $encrypted_id . '"><i class="bx bx-trash me-1"></i>HAPUS</a>
             </div>
         </div>';
     }

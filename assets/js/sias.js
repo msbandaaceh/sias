@@ -17,31 +17,43 @@ $(function () {
         $('#data_surat_tab').tab('show');
     });
 
-    $(document).on("click", "#hapusSM", function () {
-        var id = $('#hapus').data('id');
-        console.log(id);
-        $.ajax({
-            url: 'hapus_surat_masuk',
-            method: 'POST',
-            data: {
-                suratId: id
-            },
-            dataType: 'json',
-            success: function (res) {
-                if (res.success) {
-                    toastr.success(res.message);
-                    $('body').removeClass('modal-open');
-                    $('.modal-backdrop').remove();
-                    loadPage('arsip_sm');
-                } else {
-                    toastr.error(res.message);
-                }
-            },
-            error: function () {
-                toastr.error('Terjadi kesalahan saat menyimpan data.');
+    $(document).on("click", ".hapus-btn", function () {
+        var id = $(this).data('id'); // Mengambil ID dari tombol yang diklik
+
+        Swal.fire({
+            title: 'Apakah anda yakin?',
+            text: "Data ini tidak dapat dikembalikan!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d73a49',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'YA, HAPUS DATA'
+        }).then(function (result) {
+            if (result.isConfirmed) {
+                // Eksekusi hapus data via AJAX
+                $.ajax({
+                    url: 'hapus_surat_masuk',
+                    method: 'POST',
+                    data: { suratId: id },
+                    dataType: 'json',
+                    success: function (res) {
+                        if (res.success) {
+                            toastr.success(res.message);
+                            $('body').removeClass('modal-open');
+                            $('.modal-backdrop').remove();
+                            loadPage('arsip_sm');
+                        } else {
+                            toastr.error(res.message);
+                        }
+                    },
+                    error: function () {
+                        toastr.error('Terjadi kesalahan saat menghapus data.');
+                    }
+                });
             }
         });
-    })
+    });
+
 
     $(document).on('submit', '#formLaporanSM', function (e) {
         e.preventDefault(); // Cegah reload
@@ -116,7 +128,7 @@ $(function () {
                     } else {
                         toastr.success(res.message);
                     }
-                    
+
                     $('#tambah-modal').modal('hide');
                     $('body').removeClass('modal-open');
                     $('.modal-backdrop').remove();
@@ -447,7 +459,7 @@ function ModalInputSurat(id) {
             $("#ket").val(json.ket);
             $("#file").val(json.file);
             $("#no_hp").val(json.no_hp || '');
-            
+
             // Handle tracking code display
             if (json.tracking_code) {
                 $("#tracking_code_readonly").val(json.tracking_code);
@@ -955,14 +967,14 @@ function formatPegawaiSelection(option) {
 function updateTime() {
     const timeElement = document.getElementById('current-time');
     const serverTimeElement = document.getElementById('server-time');
-    
+
     if (timeElement || serverTimeElement) {
         const now = new Date();
         const hours = String(now.getHours()).padStart(2, '0');
         const minutes = String(now.getMinutes()).padStart(2, '0');
         const seconds = String(now.getSeconds()).padStart(2, '0');
         const timeString = hours + ':' + minutes + ':' + seconds;
-        
+
         if (timeElement) {
             timeElement.textContent = timeString;
         }
@@ -976,12 +988,12 @@ function updateTime() {
 function initTimeUpdate() {
     const timeElement = document.getElementById('current-time');
     const serverTimeElement = document.getElementById('server-time');
-    
+
     // Hapus interval sebelumnya jika ada
     if (window.timeUpdateInterval) {
         clearInterval(window.timeUpdateInterval);
     }
-    
+
     if (timeElement || serverTimeElement) {
         updateTime(); // Initial call
         window.timeUpdateInterval = setInterval(updateTime, 1000);
@@ -989,6 +1001,6 @@ function initTimeUpdate() {
 }
 
 // Initialize saat document ready
-$(document).ready(function() {
+$(document).ready(function () {
     initTimeUpdate();
 });
