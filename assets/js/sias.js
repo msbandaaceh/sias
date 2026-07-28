@@ -442,8 +442,8 @@ function ModalInputSurat(id) {
             $("#no_surat").val(json.no_surat);
             $("#perihal").val(json.perihal);
             $("#id").val(json.id);
-            $("#tgl_surat").val(json.tgl_surat);
-            $("#tgl_terima").val(json.tgl_terima);
+            $("#tanggal_surat").val(json.tgl_surat);
+            $("#tanggal_terima").val(json.tgl_terima);
             $("#ket").val(json.ket);
             $("#file").val(json.file);
             $("#no_hp").val(json.no_hp || '');

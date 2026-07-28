@@ -337,7 +337,7 @@ class HalamanUtama extends MY_Controller
         
         // Badge untuk status dibaca
         if (!empty($row->dibaca)) {
-            $html .= ' <span class="badge badge-success"><i class="fas fa-check" title="Surat Sudah Dibaca"></i></span>';
+            $html .= '<br> <span class="badge badge-success"><i class="fas fa-check" title="Surat Sudah Dibaca"></i></span>';
         }
         
         // Badge untuk status surat

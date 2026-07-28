@@ -683,7 +683,7 @@
         };
     </script>
 
-    <script src="<?= site_url('assets/js/sias.js?v=1.0.5'); ?>"></script>
+    <script src="<?= site_url('assets/js/sias.js?v=1.0.6'); ?>"></script>
 </body>
 
 </html>
