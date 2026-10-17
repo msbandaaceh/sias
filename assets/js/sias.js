@@ -1,4 +1,20 @@
+var activeTabs = {};
+
 $(function () {
+    $(document).on('shown.bs.tab', '[data-toggle="pill"], [data-toggle="tab"]', function (e) {
+
+        var $tab = $(e.target);
+        var href = $tab.attr('href');
+        var $container = $tab.closest('.nav-tabs, .nav-pills');
+        var containerId = $container.attr('id');
+
+        if (!containerId || !href) {
+            return;
+        }
+
+        activeTabs[containerId] = href;
+    });
+
     var chkAgenda = document.getElementById('chkAgenda');
 
     if (chkAgenda) { // Cek apakah elemen dengan id 'chkAgenda' ada
@@ -170,8 +186,46 @@ $(function () {
     });
 });
 
-function loadPage(page) {
+function restoreActiveTabs() {
+
+    $.each(activeTabs, function (containerId, href) {
+
+        var $container = $('#' + containerId);
+
+        if (!$container.length) {
+            return;
+        }
+
+        var $tab = $container.find(
+            '[data-toggle="pill"][href="' + href + '"], ' +
+            '[data-toggle="tab"][href="' + href + '"]'
+        );
+
+        if ($tab.length) {
+            $tab.tab('show');
+        }
+
+
+        if (href == '#nomor-surat-panitera') {
+            TampilNomorSuratPanitera();
+        } else if (href == '#nomor-surat-sekretaris') {
+            TampilNomorSuratSekretaris();
+        }
+    });
+}
+
+function loadPage(page, param) {
     cekToken();
+    // Clear previous query params
+    if (window.location.search) {
+        var cleanUrl = window.location.pathname;
+        window.history.replaceState(null, '', cleanUrl);
+    }
+    // Add param if provided
+    if (param) {
+        var newUrl = window.location.pathname + '?id=' + encodeURIComponent(param);
+        window.history.replaceState(null, '', newUrl);
+    }
     $('#app').html(`
         <div class="page-wrapper">
             <div class="page-content">
@@ -186,6 +240,38 @@ function loadPage(page) {
     `);
     $.get("halamanutama/page/" + page, function (data) {
         $('#app').html(data);
+        // jQuery .html() menjalankan <script> inline, tetapi TIDAK menjalankan
+        // <script src="..."> yang direferensikan view. Maka pindahkan ulang
+        // script eksternalnya secara eksplisit (hanya yang belum pernah dimuat).
+        var $tmpContainer = $('<div>').html(data);
+
+        $tmpContainer.find('script[src]').each(function () {
+            var src = $(this).attr('src');
+
+            // Hapus query string untuk mendapatkan identitas file
+            var scriptKey = src.split('?')[0];
+
+            // Jangan muat ulang file yang sama
+            if ($loadedScripts[scriptKey]) return;
+
+            // Buat elemen script
+            var s = document.createElement('script');
+            s.src = src;
+            s.async = false;
+
+            // Tandai setelah berhasil dimuat
+            s.onload = function () {
+                $loadedScripts[scriptKey] = true;
+            };
+
+            s.onerror = function () {
+                console.error('Gagal memuat script:', src);
+                delete $loadedScripts[scriptKey];
+            };
+
+            document.body.appendChild(s);
+        });
+        restoreActiveTabs();
         // Initialize time update setelah halaman dimuat
         setTimeout(initTimeUpdate, 100);
     }).fail(function () {
@@ -198,6 +284,8 @@ function loadPage(page) {
         `);
     });
 }
+// Track script eksternal yang sudah dimuat agar tidak di-load ulang saat page di-visit lagi
+var $loadedScripts = {};
 
 function cekToken() {
     $.ajax({
@@ -1004,3 +1092,21 @@ function initTimeUpdate() {
 $(document).ready(function () {
     initTimeUpdate();
 });
+/* Kalo tidak ada bug, nanti dihapus
+function hasilkanSurat(id = null) {
+    tinymce.init({
+        selector: '#isi_template_editor',
+        license_key: 'gpl',
+        height: 800,
+        plugins: 'anchor autolink charmap codesample emoticons image link lists media searchreplace table visualblocks wordcount code',
+        toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline | code | align lineheight | numlist bullist | removeformat',
+        font_family_formats: 'Arial=sans-serif;Bookman Old Style=bookman old style;Times New Roman=times new roman;Courier New=courier new;Georgia=georgia,palatino;Helvetica=helvetica',
+
+        content_style: `
+                body { font-family: Bookman Old Style, sans-serif; font-size: 12pt; }
+                .kop-surat { width: 100%; margin-bottom: 20px; text-align: center; }
+                .kop-surat img { width: 100%; height: auto; display: block; }
+                code.pv-placeholder { display: none; }
+            `
+    });
+} */

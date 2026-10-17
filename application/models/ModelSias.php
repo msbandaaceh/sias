@@ -168,10 +168,10 @@ class ModelSias extends CI_Model
     {
         // Get total records (tanpa filter)
         $total_records = $this->db->count_all('register_surat_masuk');
-        
+
         // Build query untuk filtered count (query terpisah)
         $this->db->from('register_surat_masuk');
-        
+
         // Search filter untuk count
         if (!empty($search)) {
             $this->db->group_start();
@@ -183,17 +183,17 @@ class ModelSias extends CI_Model
             $this->db->or_like('tgl_terima', $search);
             $this->db->group_end();
         }
-        
+
         // Get total filtered - gunakan count_all_results dengan reset
         $total_filtered = $this->db->count_all_results('', false);
-        
+
         // Reset query builder untuk query data
         $this->db->reset_query();
-        
+
         // Build query untuk get data
         $this->db->select('*');
         $this->db->from('register_surat_masuk');
-        
+
         // Apply search filter untuk data
         if (!empty($search)) {
             $this->db->group_start();
@@ -205,7 +205,7 @@ class ModelSias extends CI_Model
             $this->db->or_like('tgl_terima', $search);
             $this->db->group_end();
         }
-        
+
         // Order by - mapping kolom DataTables ke kolom database
         // Kolom DataTables: [NO(0), no_agenda(1), no_sm(2), pengirim(3), perihal(4), tgl_surat(5), tgl_terima(6), aksi(7)]
         // Kolom database: [id, no_agenda, no_sm, pengirim, perihal, tgl_surat, tgl_terima]
@@ -218,16 +218,515 @@ class ModelSias extends CI_Model
             $order_by_column = isset($columns[$db_column_index]) ? $columns[$db_column_index] : 'id';
         }
         $this->db->order_by($order_by_column, $order_dir);
-        
+
         // Limit untuk pagination
         if ($length > 0) {
             $this->db->limit($length, $start);
         }
-        
+
         // Get data
         $query = $this->db->get();
         $data = $query->result();
-        
+
+        return [
+            'data' => $data,
+            'total_records' => $total_records,
+            'total_filtered' => $total_filtered
+        ];
+    }
+
+    public function get_arsip_sk_datatables($start = 0, $length = 10, $search = '', $order_column = 0, $order_dir = 'DESC')
+    {
+        // Get total records (tanpa filter)
+        if ($this->session->userdata('peran') != 'admin') {
+            $this->db->where('hapus', '0');
+            $this->db->where('pegawai_id', $this->session->userdata('pegawai_id'));
+        }
+        $total_records = $this->db->count_all('register_surat_keluar');
+
+        // Build query untuk filtered count (query terpisah)
+        if ($this->session->userdata('peran') != 'admin') {
+            $this->db->where('hapus', '0');
+            $this->db->where('pegawai_id', $this->session->userdata('pegawai_id'));
+        }
+        $this->db->from('register_surat_keluar');
+
+        // Search filter untuk count
+        if (!empty($search)) {
+            $this->db->group_start();
+            $this->db->like('perihal', $search);
+            $this->db->or_like('created_on', $search);
+            $this->db->group_end();
+        }
+
+        // Get total filtered - gunakan count_all_results dengan reset
+        $total_filtered = $this->db->count_all_results('', false);
+
+        // Reset query builder untuk query data
+        $this->db->reset_query();
+
+        // Build query untuk get data
+        $this->db->select('*');
+        $this->db->from('register_surat_keluar');
+        if ($this->session->userdata('peran') != 'admin') {
+            $this->db->where('hapus', '0');
+            $this->db->where('pegawai_id', $this->session->userdata('pegawai_id'));
+        }
+
+        // Apply search filter untuk data
+        if (!empty($search)) {
+            $this->db->group_start();
+            $this->db->like('perihal', $search);
+            $this->db->or_like('created_on', $search);
+            $this->db->group_end();
+        }
+
+        // Order by - mapping kolom DataTables ke kolom database
+        // Kolom DataTables: [NO(0), no_agenda(1), no_sm(2), pengirim(3), perihal(4), tgl_surat(5), tgl_terima(6), aksi(7)]
+        // Kolom database: [id, no_agenda, no_sm, pengirim, perihal, tgl_surat, tgl_terima]
+        $columns = ['id', 'perihal', 'created_on', 'created_by'];
+        // Adjust order_column: jika order_column = 0 (NO), gunakan id; jika > 0, kurangi 1
+        if ($order_column == 0) {
+            $order_by_column = 'id'; // Default order by id jika kolom NO
+        } else {
+            $db_column_index = $order_column - 1;
+            $order_by_column = isset($columns[$db_column_index]) ? $columns[$db_column_index] : 'id';
+        }
+        $this->db->order_by($order_by_column, $order_dir);
+
+        // Limit untuk pagination
+        if ($length > 0) {
+            $this->db->limit($length, $start);
+        }
+
+        // Get data
+        $query = $this->db->get();
+        $data = $query->result();
+
+        return [
+            'data' => $data,
+            'total_records' => $total_records,
+            'total_filtered' => $total_filtered
+        ];
+    }
+
+    public function get_klasifikasi_surat_datatables($start = 0, $length = 10, $search = '', $order_column = 0, $order_dir = 'DESC')
+    {
+        // Get total records (tanpa filter)
+        $this->db->where('hapus', '0');
+        $total_records = $this->db->count_all('ref_klasifikasi_surat');
+
+        // Build query untuk filtered count (query terpisah)
+        $this->db->where('hapus', '0');
+        $this->db->from('ref_klasifikasi_surat');
+
+        // Search filter untuk count
+        if (!empty($search)) {
+            $this->db->group_start();
+            $this->db->like('kode', $search);
+            $this->db->or_like('jenis', $search);
+            $this->db->or_like('keterangan', $search);
+            $this->db->group_end();
+        }
+
+        // Get total filtered - gunakan count_all_results dengan reset
+        $total_filtered = $this->db->count_all_results('', false);
+
+        // Reset query builder untuk query data
+        $this->db->reset_query();
+
+        // Build query untuk get data
+        $this->db->select('*');
+        $this->db->from('ref_klasifikasi_surat');
+        $this->db->where('hapus', '0');
+
+        // Apply search filter untuk data
+        if (!empty($search)) {
+            $this->db->group_start();
+            $this->db->like('kode', $search);
+            $this->db->or_like('jenis', $search);
+            $this->db->or_like('keterangan', $search);
+            $this->db->group_end();
+        }
+
+        $columns = ['id', 'kode', 'jenis', 'keterangan'];
+        // Adjust order_column: jika order_column = 0 (NO), gunakan id; jika > 0, kurangi 1
+        if ($order_column == 0) {
+            $order_by_column = 'id'; // Default order by id jika kolom NO
+        } else {
+            $db_column_index = $order_column - 1;
+            $order_by_column = isset($columns[$db_column_index]) ? $columns[$db_column_index] : 'id';
+        }
+        $this->db->order_by($order_by_column, $order_dir);
+
+        // Limit untuk pagination
+        if ($length > 0) {
+            $this->db->limit($length, $start);
+        }
+
+        // Get data
+        $query = $this->db->get();
+        $data = $query->result();
+
+        return [
+            'data' => $data,
+            'total_records' => $total_records,
+            'total_filtered' => $total_filtered
+        ];
+    }
+
+    public function get_jenis_surat_datatables($start = 0, $length = 10, $search = '', $order_column = 0, $order_dir = 'DESC')
+    {
+        // Get total records (tanpa filter)
+        $this->db->where('hapus', '0');
+        $total_records = $this->db->count_all('ref_jenis_surat');
+
+        // Build query untuk filtered count (query terpisah)
+        $this->db->where('hapus', '0');
+        $this->db->from('ref_jenis_surat');
+
+        // Search filter untuk count
+        if (!empty($search)) {
+            $this->db->group_start();
+            $this->db->like('jenis_surat', $search);
+            $this->db->group_end();
+        }
+
+        // Get total filtered - gunakan count_all_results dengan reset
+        $total_filtered = $this->db->count_all_results('', false);
+
+        // Reset query builder untuk query data
+        $this->db->reset_query();
+
+        // Build query untuk get data
+        $this->db->select('*');
+        $this->db->from('ref_jenis_surat');
+        $this->db->where('hapus', '0');
+
+        // Apply search filter untuk data
+        if (!empty($search)) {
+            $this->db->group_start();
+            $this->db->like('jenis_surat', $search);
+            $this->db->group_end();
+        }
+
+        $columns = ['id', 'jenis_surat'];
+        // Adjust order_column: jika order_column = 0 (NO), gunakan id; jika > 0, kurangi 1
+        if ($order_column == 0) {
+            $order_by_column = 'id'; // Default order by id jika kolom NO
+        } else {
+            $db_column_index = $order_column - 1;
+            $order_by_column = isset($columns[$db_column_index]) ? $columns[$db_column_index] : 'id';
+        }
+        $this->db->order_by($order_by_column, $order_dir);
+
+        // Limit untuk pagination
+        if ($length > 0) {
+            $this->db->limit($length, $start);
+        }
+
+        // Get data
+        $query = $this->db->get();
+        $data = $query->result();
+
+        return [
+            'data' => $data,
+            'total_records' => $total_records,
+            'total_filtered' => $total_filtered
+        ];
+    }
+
+    public function get_template_surat_datatables($start = 0, $length = 10, $search = '', $order_column = 0, $order_dir = 'DESC')
+    {
+        // Get total records (tanpa filter)
+        $this->db->where('hapus', '0');
+        $total_records = $this->db->count_all('template_surat');
+
+        // Build query untuk filtered count (query terpisah)
+        $this->db->where('hapus', '0');
+        $this->db->from('template_surat');
+
+        // Search filter untuk count
+        if (!empty($search)) {
+            $this->db->group_start();
+            $this->db->like('nama_template', $search);
+            $this->db->group_end();
+        }
+
+        // Get total filtered - gunakan count_all_results dengan reset
+        $total_filtered = $this->db->count_all_results('', false);
+
+        // Reset query builder untuk query data
+        $this->db->reset_query();
+
+        // Build query untuk get data
+        $this->db->select('*');
+        $this->db->from('template_surat');
+        $this->db->where('hapus', '0');
+
+        // Apply search filter untuk data
+        if (!empty($search)) {
+            $this->db->group_start();
+            $this->db->like('nama_template', $search);
+            $this->db->group_end();
+        }
+
+        $columns = ['id', 'nama_template', 'jenis_surat', 'isi_template', 'created_by', 'created_on'];
+        // Adjust order_column: jika order_column = 0 (NO), gunakan id; jika > 0, kurangi 1
+        if ($order_column == 0) {
+            $order_by_column = 'id'; // Default order by id jika kolom NO
+        } else {
+            $db_column_index = $order_column - 1;
+            $order_by_column = isset($columns[$db_column_index]) ? $columns[$db_column_index] : 'id';
+        }
+        $this->db->order_by($order_by_column, $order_dir);
+
+        // Limit untuk pagination
+        if ($length > 0) {
+            $this->db->limit($length, $start);
+        }
+
+        // Get data
+        $query = $this->db->get();
+        $data = $query->result();
+
+        return [
+            'data' => $data,
+            'total_records' => $total_records,
+            'total_filtered' => $total_filtered
+        ];
+    }
+
+    public function get_nomor_surat_ketua_datatables($start = 0, $length = 10, $search = '', $order_column = 0, $order_dir = 'DESC')
+    {
+        $this->db->where('hapus', '0');
+        $this->db->where('jabatan', 'Ketua');
+        $total_records = $this->db->count_all_results('register_nomor_surat');
+
+        // Build query untuk filtered count
+        $this->db->from('register_nomor_surat');
+
+        // Filter khusus surat Ketua
+        $this->db->where('hapus', '0');
+        $this->db->where('jabatan', 'Ketua');
+
+        // Search filter
+        if (!empty($search)) {
+            $this->db->group_start();
+            $this->db->like('no_agenda', $search);
+            $this->db->or_like('no_surat', $search);
+            $this->db->or_like('tujuan_surat', $search);
+            $this->db->or_like('perihal', $search);
+            $this->db->group_end();
+        }
+
+        // Get total filtered
+        $total_filtered = $this->db->count_all_results();
+
+        // Reset query builder untuk query data
+        $this->db->reset_query();
+
+        // Build query untuk get data
+        $this->db->select('*');
+        $this->db->from('register_nomor_surat');
+
+        // Filter khusus surat Ketua
+        $this->db->where('hapus', '0');
+        $this->db->where('jabatan', 'Ketua');
+
+        // Apply search filter untuk data
+        if (!empty($search)) {
+            $this->db->group_start();
+            $this->db->like('no_agenda', $search);
+            $this->db->or_like('no_surat', $search);
+            $this->db->or_like('tujuan_surat', $search);
+            $this->db->or_like('perihal', $search);
+            $this->db->group_end();
+        }
+
+        $columns = ['id', 'no_agenda', 'no_surat', 'tujuan_surat', 'perihal'];
+
+        // Adjust order_column
+        // Jika order_column = 0 (NO), gunakan id
+        // Jika > 0, kurangi 1 untuk menyesuaikan index database
+        if ($order_column == 0) {
+            $order_by_column = 'id';
+        } else {
+            $db_column_index = $order_column - 1;
+            $order_by_column = isset($columns[$db_column_index])
+                ? $columns[$db_column_index]
+                : 'id';
+        }
+
+        $this->db->order_by($order_by_column, $order_dir);
+
+        // Limit untuk pagination
+        if ($length > 0) {
+            $this->db->limit($length, $start);
+        }
+
+        // Get data
+        $query = $this->db->get();
+        $data = $query->result();
+
+        return [
+            'data' => $data,
+            'total_records' => $total_records,
+            'total_filtered' => $total_filtered
+        ];
+    }
+
+    public function get_nomor_surat_panitera_datatables($start = 0, $length = 10, $search = '', $order_column = 0, $order_dir = 'DESC')
+    {
+        $this->db->where('hapus', '0');
+        $this->db->where('jabatan', 'Panitera');
+        $total_records = $this->db->count_all_results('register_nomor_surat');
+
+        // Build query untuk filtered count
+        $this->db->from('register_nomor_surat');
+
+        // Filter khusus surat Panitera
+        $this->db->where('hapus', '0');
+        $this->db->where('jabatan', 'Panitera');
+
+        // Search filter
+        if (!empty($search)) {
+            $this->db->group_start();
+            $this->db->like('no_agenda', $search);
+            $this->db->or_like('no_surat', $search);
+            $this->db->or_like('tujuan_surat', $search);
+            $this->db->or_like('perihal', $search);
+            $this->db->group_end();
+        }
+
+        // Get total filtered
+        $total_filtered = $this->db->count_all_results();
+
+        // Reset query builder untuk query data
+        $this->db->reset_query();
+
+        // Build query untuk get data
+        $this->db->select('*');
+        $this->db->from('register_nomor_surat');
+
+        // Filter khusus surat Panitera
+        $this->db->where('hapus', '0');
+        $this->db->where('jabatan', 'Panitera');
+
+        // Apply search filter untuk data
+        if (!empty($search)) {
+            $this->db->group_start();
+            $this->db->like('no_agenda', $search);
+            $this->db->or_like('no_surat', $search);
+            $this->db->or_like('tujuan_surat', $search);
+            $this->db->or_like('perihal', $search);
+            $this->db->group_end();
+        }
+
+        $columns = ['id', 'no_agenda', 'no_surat', 'tujuan_surat', 'perihal'];
+
+        // Adjust order_column
+        // Jika order_column = 0 (NO), gunakan id
+        // Jika > 0, kurangi 1 untuk menyesuaikan index database
+        if ($order_column == 0) {
+            $order_by_column = 'id';
+        } else {
+            $db_column_index = $order_column - 1;
+            $order_by_column = isset($columns[$db_column_index])
+                ? $columns[$db_column_index]
+                : 'id';
+        }
+
+        $this->db->order_by($order_by_column, $order_dir);
+
+        // Limit untuk pagination
+        if ($length > 0) {
+            $this->db->limit($length, $start);
+        }
+
+        // Get data
+        $query = $this->db->get();
+        $data = $query->result();
+
+        return [
+            'data' => $data,
+            'total_records' => $total_records,
+            'total_filtered' => $total_filtered
+        ];
+    }
+
+    public function get_nomor_surat_sekretaris_datatables($start = 0, $length = 10, $search = '', $order_column = 0, $order_dir = 'DESC')
+    {
+        $this->db->where('hapus', '0');
+        $this->db->where('jabatan', 'Sekretaris');
+        $total_records = $this->db->count_all_results('register_nomor_surat');
+
+        // Build query untuk filtered count
+        $this->db->from('register_nomor_surat');
+
+        // Filter khusus surat Sekretaris
+        $this->db->where('hapus', '0');
+        $this->db->where('jabatan', 'Sekretaris');
+
+        // Search filter
+        if (!empty($search)) {
+            $this->db->group_start();
+            $this->db->like('no_agenda', $search);
+            $this->db->or_like('no_surat', $search);
+            $this->db->or_like('tujuan_surat', $search);
+            $this->db->or_like('perihal', $search);
+            $this->db->group_end();
+        }
+
+        // Get total filtered
+        $total_filtered = $this->db->count_all_results();
+
+        // Reset query builder untuk query data
+        $this->db->reset_query();
+
+        // Build query untuk get data
+        $this->db->select('*');
+        $this->db->from('register_nomor_surat');
+
+        // Filter khusus surat Sekretaris
+        $this->db->where('hapus', '0');
+        $this->db->where('jabatan', 'Sekretaris');
+
+        // Apply search filter untuk data
+        if (!empty($search)) {
+            $this->db->group_start();
+            $this->db->like('no_agenda', $search);
+            $this->db->or_like('no_surat', $search);
+            $this->db->or_like('tujuan_surat', $search);
+            $this->db->or_like('perihal', $search);
+            $this->db->group_end();
+        }
+
+        $columns = ['id', 'no_agenda', 'no_surat', 'tujuan_surat', 'perihal'];
+
+        // Adjust order_column
+        // Jika order_column = 0 (NO), gunakan id
+        // Jika > 0, kurangi 1 untuk menyesuaikan index database
+        if ($order_column == 0) {
+            $order_by_column = 'id';
+        } else {
+            $db_column_index = $order_column - 1;
+            $order_by_column = isset($columns[$db_column_index])
+                ? $columns[$db_column_index]
+                : 'id';
+        }
+
+        $this->db->order_by($order_by_column, $order_dir);
+
+        // Limit untuk pagination
+        if ($length > 0) {
+            $this->db->limit($length, $start);
+        }
+
+        // Get data
+        $query = $this->db->get();
+        $data = $query->result();
+
         return [
             'data' => $data,
             'total_records' => $total_records,
@@ -248,6 +747,44 @@ class ModelSias extends CI_Model
     {
         $this->db->order_by('id', 'DESC');
         return $this->db->select('*')->from('peran')->get()->result();
+    }
+
+    public function get_all_template_surat()
+    {
+        $this->db->where('hapus', '0');
+        $this->db->order_by('nama_template', 'ASC');
+        return $this->db->get('template_surat')->result();
+    }
+
+    public function get_template_surat_by_id($id)
+    {
+        return $this->db->where('id', $id)->get('template_surat')->row();
+    }
+
+    public function get_ref_jenis_surat_by_id($id)
+    {
+        return $this->db->where('id', $id)->get('ref_jenis_surat')->row();
+    }
+
+    public function get_all_ref_jenis_surat()
+    {
+        $this->db->where('hapus', 0);
+        $this->db->order_by('jenis_surat', 'ASC');
+        return $this->db->get('ref_jenis_surat')->result();
+    }
+
+    public function get_all_ref_klasifikasi_surat()
+    {
+        $this->db->where('hapus', 0);
+        $this->db->order_by('id', 'DESC');
+        return $this->db->get('ref_klasifikasi_surat')->result();
+    }
+
+    public function get_all_klasifikasi_surat()
+    {
+        $this->db->where('hapus', 0);
+        $this->db->order_by('id', 'DESC');
+        return $this->db->get('ref_klasifikasi_surat')->result();
     }
 
     public function get_data_surat_masuk($id)
@@ -376,6 +913,29 @@ class ModelSias extends CI_Model
         }
     }
 
+    public function get_seleksi_array($tabel, $where = [], $order_by = [])
+    {
+        try {
+            // multiple where
+            if (!empty($where)) {
+                foreach ($where as $kolom => $nilai) {
+                    $this->db->where($kolom, $nilai);
+                }
+            }
+
+            // multiple order by
+            if (!empty($order_by)) {
+                foreach ($order_by as $kolom => $arah) {
+                    $this->db->order_by($kolom, $arah); // ASC / DESC
+                }
+            }
+
+            return $this->db->get($tabel);
+        } catch (Exception $e) {
+            return 0;
+        }
+    }
+
     public function simpan_data($tabel, $data)
     {
         try {
@@ -467,7 +1027,7 @@ class ModelSias extends CI_Model
         $this->db->order_by('p.created_on', 'ASC');
         return $this->db->get();
     }
-    
+
     /**
      * Get mapping nama jabatan berdasarkan ID
      */
@@ -485,8 +1045,120 @@ class ModelSias extends CI_Model
             '11' => 'Kepala Sub Bagian Kepegawaian',
             '12' => 'Kepala Sub Bagian PTIP'
         ];
-        
+
         return isset($jabatan_map[$jab_id]) ? $jabatan_map[$jab_id] : 'Jabatan Tidak Diketahui';
+    }
+
+    public function simpan_no_surat_baru($data)
+    {
+        $tabel = 'register_nomor_surat';
+
+        $year = date('Y');
+        $jabatan = $data['jabatan'];
+
+        // Buat nama lock berdasarkan tahun + jabatan
+        $lock_name = 'register_nomor_surat_' . $year . '_' . $jabatan;
+
+        // Escape nama lock
+        $lock_name_sql = $this->db->escape($lock_name);
+
+        try {
+
+            // Tunggu maksimal 10 detik mendapatkan lock
+            $lock = $this->db
+                ->query("SELECT GET_LOCK($lock_name_sql, 10) AS locked")
+                ->row();
+
+            if (!$lock || (int) $lock->locked !== 1) {
+                return 0;
+            }
+
+            /*
+             * Setelah mendapatkan lock,
+             * proses nomor harus dilakukan SEBELUM lock dilepas.
+             */
+
+            $data['no_agenda'] = $this->ambil_no_agenda_terakhir($jabatan);
+            $data['no_surat'] = $this->ambil_no_surat_terakhir($jabatan);
+
+            // Insert
+            $insert = $this->db->insert($tabel, $data);
+            $id = $this->db->insert_id();
+
+            // Simpan error sebelum melakukan query RELEASE_LOCK
+            $db_error = $this->db->error();
+
+            // Lepaskan lock
+            $this->db->query("SELECT RELEASE_LOCK($lock_name_sql)");
+
+            if (!$insert) {
+                return [
+                    'success' => 0,
+                    'pesan' => 'Gagal menyimpan nomor surat: ' . json_encode($db_error)
+                ];
+            }
+
+            $title = "Simpan Data <br />Update tabel <b>" . $tabel . "</b>[]";
+            $descrip = null;
+
+            $this->add_audittrail(
+                "INSERT",
+                $title,
+                $tabel,
+                $descrip
+            );
+
+            return [
+                'success' => 1,
+                'pesan' => $id
+            ];
+
+        } catch (Exception $e) {
+
+            // Pastikan lock dilepas
+            $this->db->query("SELECT RELEASE_LOCK($lock_name_sql)");
+
+            return [
+                'success' => 0,
+                'pesan' => 'Gagal menyimpan nomor surat: ' . json_encode($db_error)
+            ];
+        }
+    }
+
+    public function ambil_no_agenda_terakhir($jabatan)
+    {
+        $year = date('Y');
+        $last = $this->db
+            ->select('MAX(no_agenda) AS max_no')
+            ->where('tahun', $year)
+            ->where('jabatan', $jabatan)
+            ->get('register_nomor_surat')
+            ->row();
+
+        if ($last && !empty($last->max_no)) {
+            $num = (int) $last->max_no;
+            return $num + 1;
+        }
+
+        return 1;
+    }
+
+    public function ambil_no_surat_terakhir($jabatan)
+    {
+        $year = date('Y');
+        $last = $this->db
+            ->select('MAX(no_surat) AS max_no')
+            ->where('tahun', $year)
+            ->where('jabatan', $jabatan)
+            ->get('register_nomor_surat')
+            ->row();
+
+        if ($last && !empty($last->max_no)) {
+            $num = (int) $last->max_no;
+            return $num + 1;
+        }
+
+        return 1;
     }
 
     public function simpan_sm($data)
@@ -539,7 +1211,7 @@ class ModelSias extends CI_Model
                 if (!empty($no_hp) && !empty($tracking_code)) {
                     $base_url = base_url();
                     $tracking_url = $base_url . 'tracking?code=' . $tracking_code;
-                    
+
                     $pesan_pengirim = 'Assalamualaikum Wr. Wb. Surat masuk Anda telah diterima dengan nomor surat *' . $data['no_sm'] . '* perihal *' . $data['perihal'] . '*. Tracking Code: *' . $tracking_code . '*. Lacak status surat Anda di: ' . $tracking_url . ' Terima kasih.';
 
                     $dataNotif = [
@@ -548,8 +1220,8 @@ class ModelSias extends CI_Model
                         'nohp' => $no_hp,
                         'dibuat' => date('Y-m-d H:i:s')
                     ];
-    
-                    $this->kirim_notif_ptsp($dataNotif);                    
+
+                    $this->kirim_notif_ptsp($dataNotif);
                 }
             }
             return $query;
@@ -1164,5 +1836,28 @@ class ModelSias extends CI_Model
         } catch (Exception $e) {
             return $e;
         }
+    }
+
+    // ============================================
+    // Surat Keluar Methods
+    // ============================================
+
+    public function get_all_register_surat_keluar()
+    {
+        $this->db->where('hapus', 0);
+        $this->db->order_by('id', 'DESC');
+        return $this->db->get('register_surat_keluar')->result();
+    }
+
+    public function get_surat_keluar_by_id($id)
+    {
+        return $this->db->where('id', $id)->get('register_surat_keluar')->row();
+    }
+
+    public function get_all_template_surat_with_kertas()
+    {
+        $this->db->where('hapus', 0);
+        $this->db->order_by('nama_template', 'ASC');
+        return $this->db->get('template_surat')->result();
     }
 }

@@ -330,7 +330,7 @@
                                         </a>
                                     </li>
                                     <li>
-                                        <a href="javascript:;" data-page="surat_keluar" class="dropdown-item">
+                                        <a href="javascript:;" data-page="validasi_surat_keluar" class="dropdown-item">
                                             <i class="fas fa-paper-plane text-info"></i> Surat Keluar
                                             <span class="right badge badge-danger" id="surat_keluar"></span>
                                         </a>
@@ -359,6 +359,11 @@
                                 <li>
                                     <a href="javascript:;" data-page="arsip_sk" class="dropdown-item">
                                         <i class="fas fa-folder text-info"></i> Arsip Surat Keluar
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="javascript:;" data-page="arsip_nomor_surat" class="dropdown-item">
+                                        <i class="fas fa-list-ol text-info"></i> Arsip Nomor Surat
                                     </a>
                                 </li>
                                 <li>
@@ -417,12 +422,12 @@
                                         </button>
                                     </li>
                                     <li>
-                                        <a href="<?= base_url() ?>klas" class="dropdown-item">
-                                            <i class="fas fa-tags text-warning"></i> Klasifikasi Surat
+                                        <a href="javascript:;" data-page="pengaturan_aplikasi" class="dropdown-item">
+                                            <i class="fas fa-file-alt text-info"></i> Pengaturan Aplikasi
                                         </a>
                                     </li>
                                     <li>
-                                        <a href="<?= base_url() ?>klas_arsip" class="dropdown-item">
+                                        <a href="javascript:;" data-page="klasifikasi_arsip" class="dropdown-item">
                                             <i class="fas fa-layer-group text-info"></i> Klasifikasi Arsip
                                         </a>
                                     </li>
@@ -502,11 +507,12 @@
                                 <div class="row">
                                     <div class="col-xl-6 col-lg-6 col-md-12 text-center">
                                         <a href="<?= $this->config->item('sso_server') ?>"
-                                            class="btn btn-outline-info btn-block"><i class="fas fa-sync-alt"></i> Pindah Layanan</a>
+                                            class="btn btn-outline-info btn-block"><i class="fas fa-sync-alt"></i>
+                                            Pindah Layanan</a>
                                     </div>
                                     <div class="col-xl-6 col-lg-6 col-md-12 text-center">
-                                        <a href="<?= site_url('keluar') ?>"
-                                            class="btn btn-outline-success btn-block"><i class="fas fa-share-square"></i> Keluar</a>
+                                        <a href="<?= site_url('keluar') ?>" class="btn btn-outline-success btn-block"><i
+                                                class="fas fa-share-square"></i> Keluar</a>
                                     </div>
                                 </div>
                             </li>
@@ -623,6 +629,7 @@
 
             let jabatan = '<?= $this->session->userdata('jab_id') ?>';
             const peran = ['1', '4', '5', '6', '7', '8', '9', '10', '11', '12'];
+            window.userRole = '<?= $this->session->userdata('peran') ?>';
 
             if (peran.includes(jabatan)) {
                 getNotifSuratMasuk();
@@ -683,7 +690,7 @@
         };
     </script>
 
-    <script src="<?= site_url('assets/js/sias.js?v=1.0.7'); ?>"></script>
+    <script src="<?= site_url('assets/js/sias.js?v=2.0.0'); ?>"></script>
 </body>
 
 </html>

@@ -64,6 +64,35 @@ class TanggalHelper{
 		return $month;
 	}
 
+	function monthRoman($str){
+		if($str=='01'){
+			$month = 'I';
+		}elseif($str=='02'){
+			$month = 'II';
+		}elseif($str=='03'){
+			$month = 'III';
+		}elseif($str=='04'){
+			$month = 'IV';
+		}elseif($str=='05'){
+			$month = 'V';
+		}elseif($str=='06'){
+			$month = 'VI';
+		}elseif($str=='07'){
+			$month = 'VII';
+		}elseif($str=='08'){
+			$month = 'VIII';
+		}elseif($str=='09'){
+			$month = 'IX';
+		}elseif($str=='10'){
+			$month = 'X';
+		}elseif($str=='11'){
+			$month = 'XI';
+		}elseif($str=='12'){
+			$month = 'XII';
+		}
+		return $month;
+	}
+
 	function dayName($str){
 		if(preg_match('((?:Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday|Tues|Thur|Thurs|Sun|Mon|Tue|Wed|Thu|Fri|Sat))', $str)){
 			

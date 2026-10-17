@@ -1,3 +1,24 @@
+<style>
+    .btn-no-surat {
+        display: flex !important;
+        align-items: flex-start;
+        gap: 4px;
+        background: transparent !important;
+        border: none !important;
+        white-space: normal !important;
+        text-align: left !important;
+        width: 100%;
+        height: auto !important;
+    }
+
+    .btn-no-surat .text-info {
+        min-width: 0;
+        white-space: normal !important;
+        overflow-wrap: anywhere;
+        word-break: break-word;
+    }
+</style>
+
 <!-- Content wrapper -->
 <div class="content-wrapper">
     <!-- Content Header (Page header) -->
@@ -45,9 +66,8 @@
                                     <tr>
                                         <th>NO</th>
                                         <th>NOMOR AGENDA</th>
-                                        <th>NOMOR SURAT</th>
-                                        <th>PENGIRIM</th>
                                         <th>PERIHAL</th>
+                                        <th>PENGIRIM</th>
                                         <th>TANGGAL SURAT</th>
                                         <th>TANGGAL TERIMA</th>
                                         <?php
@@ -64,9 +84,8 @@
                                     <tr>
                                         <th>NO</th>
                                         <th>NOMOR AGENDA</th>
-                                        <th>NOMOR SURAT</th>
-                                        <th>PENGIRIM</th>
                                         <th>PERIHAL</th>
+                                        <th>PENGIRIM</th>
                                         <th>TANGGAL SURAT</th>
                                         <th>TANGGAL TERIMA</th>
                                         <?php
@@ -176,11 +195,11 @@
                                     </label>
                                     <small class="text-muted"> (Opsional - untuk notifikasi tracking)</small>
                                     <input type="text" name="no_hp" id="no_hp" class="form-control"
-                                        placeholder="Contoh: 081234567890" 
-                                        pattern="[0-9]{10,15}"
+                                        placeholder="Contoh: 081234567890" pattern="[0-9]{10,15}"
                                         title="Masukkan nomor HP 10-15 digit" />
                                     <small class="form-text text-muted">
-                                        <i class="fas fa-info-circle"></i> Jika diisi, sistem akan mengirimkan notifikasi 
+                                        <i class="fas fa-info-circle"></i> Jika diisi, sistem akan mengirimkan
+                                        notifikasi
                                         berisi Tracking Code dan link untuk melacak status surat.
                                     </small>
                                 </div>
@@ -191,16 +210,19 @@
                                     <div class="input-group">
                                         <input type="text" id="tracking_code_readonly" class="form-control" readonly />
                                         <div class="input-group-append">
-                                            <button type="button" class="btn btn-info" onclick="copyTrackingCode()" title="Copy Tracking Code">
+                                            <button type="button" class="btn btn-info" onclick="copyTrackingCode()"
+                                                title="Copy Tracking Code">
                                                 <i class="fas fa-copy"></i>
                                             </button>
-                                            <a href="#" id="tracking_link" target="_blank" class="btn btn-success" title="Buka Halaman Tracking">
+                                            <a href="#" id="tracking_link" target="_blank" class="btn btn-success"
+                                                title="Buka Halaman Tracking">
                                                 <i class="fas fa-external-link-alt"></i>
                                             </a>
                                         </div>
                                     </div>
                                     <small class="form-text text-muted">
-                                        <i class="fas fa-info-circle"></i> Tracking code ini akan otomatis dibuat saat surat baru disimpan.
+                                        <i class="fas fa-info-circle"></i> Tracking code ini akan otomatis dibuat saat
+                                        surat baru disimpan.
                                     </small>
                                 </div>
                             </div>
@@ -354,25 +376,24 @@
             "responsive": true,
             "lengthChange": true,
             "autoWidth": false,
-            "pageLength": 25, // Default 25 records per page
+            "pageLength": 10,
             "lengthMenu": [[10, 25, 50, 100, -1], [10, 25, 50, 100, "Semua"]],
             "ajax": {
                 "url": "<?= site_url('arsip_sm_datatables') ?>",
                 "type": "POST",
-                "data": function(d) {
+                "data": function (d) {
                     // DataTables akan otomatis mengirim parameter draw, start, length, search, order
                 }
             },
             "columns": [
                 { "data": 0, "orderable": false, "searchable": false }, // NO
                 { "data": 1, "orderable": true },  // NOMOR AGENDA
-                { "data": 2, "orderable": true },  // NOMOR SURAT
+                { "data": 2, "orderable": true },  // PERIHAL
                 { "data": 3, "orderable": true },  // PENGIRIM
-                { "data": 4, "orderable": true },  // PERIHAL
-                { "data": 5, "orderable": true },  // TANGGAL SURAT
-                { "data": 6, "orderable": true },  // TANGGAL TERIMA
+                { "data": 4, "orderable": true },  // TANGGAL SURAT
+                { "data": 5, "orderable": true },  // TANGGAL TERIMA
                 <?php if (in_array($peran, ['admin', 'penelaah'])): ?>
-                { "data": 7, "orderable": false, "searchable": false }  // AKSI
+                                    { "data": 6, "orderable": false, "searchable": false }  // AKSI
                 <?php endif; ?>
             ],
             "order": [[0, "desc"]], // Default order by ID DESC (kolom 0 akan di-map ke id di server)
@@ -392,7 +413,23 @@
                     "previous": "Sebelumnya"
                 }
             },
-            "buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"]
+            "buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"],
+            initComplete: function () {
+                var api = this.api();
+                var searchInput = $('#tblSM_filter input');
+                var debounceTimer;
+                searchInput.off('keyup.DT input.DT');
+
+                searchInput.on('input', function () {
+                    var value = this.value;
+                    clearTimeout(debounceTimer);
+                    debounceTimer = setTimeout(function () {
+                        if (api.search() !== value) {
+                            api.search(value).draw();
+                        }
+                    }, 500); // 500 ms
+                });
+            }
         }).buttons().container().appendTo('#tblSM_wrapper .col-md-6:eq(0)');
     });
 </script>
