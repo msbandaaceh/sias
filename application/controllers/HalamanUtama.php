@@ -23,11 +23,13 @@ class HalamanUtama extends MY_Controller
             'arsip_sm',
             'arsip_sk',
             'arsip_digital',
+            'arsip_nomor_surat',
             'laporan_sm',
             'laporan_sk',
             'laporan_disposisi',
             'laporan_progres',
             'laporan_arsip',
+            'pengaturan_aplikasi',
             'panduan',
             'dokumentasi'
         ];
@@ -35,7 +37,7 @@ class HalamanUtama extends MY_Controller
         if (in_array($halaman, $allowed)) {
             $data['peran'] = $this->session->userdata('peran');
             $data['page'] = $halaman;
-            
+
             // Cek akses halaman berdasarkan peran
             if ($halaman == 'panduan') {
                 // Panduan hanya untuk admin, penelaah, operator, pejabat
@@ -50,12 +52,16 @@ class HalamanUtama extends MY_Controller
                     return;
                 }
             }
-            
+
             if ($halaman == 'arsip_sm') {
                 // Tidak perlu load semua data, akan di-load via AJAX (server-side processing)
                 $data['arsip_sm'] = [];
             } elseif ($halaman == 'arsip_sk') {
-                $halaman = '500';
+                // Arsip surat keluar - akan di-load via AJAX
+                $data['arsip_sk'] = [];
+            } elseif ($halaman == 'surat_keluar') {
+                // Halaman buat surat keluar
+                $data['kop_satker'] = $this->session->userdata('kop_satker') ?? '';
             } elseif ($halaman == 'arsip_digital') {
                 $halaman = '500';
             } elseif ($halaman == 'dashboard') {
@@ -64,23 +70,23 @@ class HalamanUtama extends MY_Controller
                 $data['jumlah_sm'] = (is_array($all_sm_data) || is_object($all_sm_data)) ? count($all_sm_data) : 0;
                 $data['jumlah_sk'] = 0; // Placeholder untuk surat keluar
                 $data['jumlah_arsip_digital'] = 0; // Placeholder untuk arsip digital
-                
+
                 // Data untuk dashboard berdasarkan peran
                 if (in_array($data['peran'], ['admin', 'penelaah', 'pejabat'])) {
                     $jab_id = $this->session->userdata('jab_id');
-                    
+
                     // Validasi surat masuk - handle jika return integer
                     $validasi_data = $this->model->validasi_surat_masuk($jab_id);
                     $data['jumlah_validasi'] = (is_array($validasi_data) || is_object($validasi_data)) ? count($validasi_data) : 0;
-                    
+
                     // Register surat masuk
                     $register_data = $this->model->register_surat_masuk($jab_id);
                     $data['jumlah_surat_masuk'] = (is_array($register_data) || is_object($register_data)) ? count($register_data) : 0;
-                    
+
                     // Disposisi surat masuk
                     $disposisi_data = $this->model->disposisi_surat_masuk($jab_id);
                     $data['jumlah_disposisi'] = (is_array($disposisi_data) || is_object($disposisi_data)) ? count($disposisi_data) : 0;
-                    
+
                     // Surat terbaru (5 terakhir)
                     $all_sm = $this->model->all_sm_data();
                     if (is_array($all_sm) && count($all_sm) > 0) {
@@ -98,8 +104,6 @@ class HalamanUtama extends MY_Controller
                 $data['validasi'] = $this->model->validasi_surat_masuk($this->session->userdata('jab_id'));
             } elseif ($halaman == 'surat_masuk') {
                 $data['surat_masuk'] = $this->model->register_surat_masuk($this->session->userdata('jab_id'));
-            } elseif ($halaman == 'surat_keluar') {
-                $halaman = '500';
             } elseif ($halaman == 'disposisi') {
                 $data['disposisi'] = $this->model->disposisi_surat_masuk($this->session->userdata('jab_id'));
             } elseif ($halaman == 'laporan_sm') {
@@ -315,9 +319,8 @@ class HalamanUtama extends MY_Controller
             $response['data'][] = [
                 $no++,
                 $this->format_no_agenda($row),
-                $this->format_no_surat($row),
-                $row->pengirim ?? '',
-                $row->perihal ?? '',
+                $this->format_perihal($row),
+                $row->pengirim ?? '',             
                 $row->tgl_surat ?? '',
                 $row->tgl_terima ?? '',
                 $this->format_aksi($row)
@@ -334,12 +337,12 @@ class HalamanUtama extends MY_Controller
     private function format_no_agenda($row)
     {
         $html = ($row->no_agenda ?? '');
-        
+
         // Badge untuk status dibaca
         if (!empty($row->dibaca)) {
-            $html .= '<br> <span class="badge badge-success"><i class="fas fa-check" title="Surat Sudah Dibaca"></i></span>';
+            $html .= ' <span class="badge badge-success"><i class="fas fa-check" title="Surat Sudah Dibaca"></i></span>';
         }
-        
+
         // Badge untuk status surat
         if (!empty($row->status)) {
             if ($row->status == 1) {
@@ -350,17 +353,23 @@ class HalamanUtama extends MY_Controller
         } else {
             $html .= ' <span class="badge badge-info"><i class="fas fa-info" title="Surat Belum Diproses"></i></span>';
         }
-        
+
         return $html;
     }
 
     /**
-     * Format nomor surat dengan link detail
+     * Format perihal dengan link detail
      */
-    private function format_no_surat($row)
+    private function format_perihal($row)
     {
         $encrypted_id = base64_encode($this->encryption->encrypt($row->id));
-        return '<button class="dropdown-item" data-target="#detilModal" onclick="BukaDetilSurat(\'arsip\', \'' . $encrypted_id . '\')" data-toggle="modal" style="background: transparent; border: none !important;"><i class="bx bx-edit-alt me-1"></i><p class="text-info"><b>' . ($row->no_sm ?? '') . '</b></p></button>';
+        return '<button 
+                    class="dropdown-item btn-no-surat" 
+                    data-target="#detilModal" 
+                    onclick="BukaDetilSurat(\'arsip\', \'' . $encrypted_id . '\')" 
+                    data-toggle="modal">
+                    <span class="text-info">' . ($row->perihal ?? '') . '</span>
+                </button>';
     }
 
     /**
