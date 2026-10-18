@@ -26,43 +26,48 @@
                         <div class="card-header p-0 border-bottom-0">
                             <ul class="nav nav-tabs" id="custom-tabs-panduan" role="tablist">
                                 <li class="nav-item">
-                                    <a class="nav-link active" id="tab-panduan-umum" data-toggle="pill" 
-                                       href="#panduan-umum" role="tab" aria-controls="panduan-umum" 
-                                       aria-selected="true">
+                                    <a class="nav-link active" id="tab-panduan-umum" data-toggle="pill"
+                                        href="#panduan-umum" role="tab" aria-controls="panduan-umum"
+                                        aria-selected="true">
                                         <i class="fas fa-book"></i> Panduan Umum
                                     </a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link" id="tab-panduan-surat" data-toggle="pill" 
-                                       href="#panduan-surat" role="tab" aria-controls="panduan-surat" 
-                                       aria-selected="false">
+                                    <a class="nav-link" id="tab-panduan-surat" data-toggle="pill" href="#panduan-surat"
+                                        role="tab" aria-controls="panduan-surat" aria-selected="false">
                                         <i class="fas fa-envelope"></i> Pengelolaan Surat
                                     </a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link" id="tab-panduan-arsip" data-toggle="pill" 
-                                       href="#panduan-arsip" role="tab" aria-controls="panduan-arsip" 
-                                       aria-selected="false">
+                                    <a class="nav-link" id="tab-panduan-arsip" data-toggle="pill" href="#panduan-arsip"
+                                        role="tab" aria-controls="panduan-arsip" aria-selected="false">
                                         <i class="fas fa-archive"></i> Arsip
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" id="tab-panduan-nomor-surat" data-toggle="pill"
+                                        href="#panduan-nomor-surat" role="tab" aria-controls="panduan-nomor-surat"
+                                        aria-selected="false">
+                                        <i class="fas fa-archive"></i> Nomor Surat
                                     </a>
                                 </li>
                             </ul>
                         </div>
                         <div class="card-body">
                             <div class="tab-content" id="custom-tabs-panduan-tabContent">
-                                
+
                                 <!-- Tab Panduan Umum -->
-                                <div class="tab-pane fade show active" id="panduan-umum" role="tabpanel" 
-                                     aria-labelledby="tab-panduan-umum">
+                                <div class="tab-pane fade show active" id="panduan-umum" role="tabpanel"
+                                    aria-labelledby="tab-panduan-umum">
                                     <h3><i class="fas fa-info-circle text-primary"></i> Tentang SIAS</h3>
                                     <p class="lead">
-                                        SIAS (Sistem Informasi Arsip Surat) adalah aplikasi berbasis web untuk 
+                                        SIAS (Sistem Informasi Arsip Surat) adalah aplikasi berbasis web untuk
                                         mengelola surat masuk, surat keluar, disposisi, dan arsip digital.
                                     </p>
-                                    
+
                                     <div class="callout callout-info">
                                         <h5><i class="icon fas fa-info"></i> Informasi:</h5>
-                                        Aplikasi ini menggunakan teknologi CodeIgniter 3 dan AdminLTE 3 
+                                        Aplikasi ini menggunakan teknologi CodeIgniter 3 dan AdminLTE 3
                                         dengan pendekatan Single Page Application (SPA).
                                     </div>
 
@@ -133,19 +138,19 @@
                                     <h4 class="mt-4"><i class="fas fa-laptop"></i> Persyaratan Sistem</h4>
                                     <ul class="list-group">
                                         <li class="list-group-item">
-                                            <i class="fas fa-check text-success"></i> 
+                                            <i class="fas fa-check text-success"></i>
                                             Browser modern (Chrome, Firefox, Edge, Safari)
                                         </li>
                                         <li class="list-group-item">
-                                            <i class="fas fa-check text-success"></i> 
+                                            <i class="fas fa-check text-success"></i>
                                             JavaScript diaktifkan
                                         </li>
                                         <li class="list-group-item">
-                                            <i class="fas fa-check text-success"></i> 
+                                            <i class="fas fa-check text-success"></i>
                                             Koneksi internet stabil
                                         </li>
                                         <li class="list-group-item">
-                                            <i class="fas fa-check text-success"></i> 
+                                            <i class="fas fa-check text-success"></i>
                                             Resolusi layar minimal 1024x768
                                         </li>
                                     </ul>
@@ -156,7 +161,8 @@
                                             <div class="card bg-light">
                                                 <div class="card-body">
                                                     <h5><i class="fas fa-sun text-warning"></i> Mode Terang</h5>
-                                                    <p>Tampilan default dengan background putih/terang yang nyaman untuk mata di kondisi normal.</p>
+                                                    <p>Tampilan default dengan background putih/terang yang nyaman untuk
+                                                        mata di kondisi normal.</p>
                                                 </div>
                                             </div>
                                         </div>
@@ -164,7 +170,9 @@
                                             <div class="card bg-dark text-white">
                                                 <div class="card-body">
                                                     <h5><i class="fas fa-moon text-info"></i> Mode Gelap</h5>
-                                                    <p>Tampilan dengan background gelap yang mengurangi kelelahan mata, cocok untuk penggunaan di malam hari atau ruangan minim cahaya.</p>
+                                                    <p>Tampilan dengan background gelap yang mengurangi kelelahan mata,
+                                                        cocok untuk penggunaan di malam hari atau ruangan minim cahaya.
+                                                    </p>
                                                 </div>
                                             </div>
                                         </div>
@@ -172,7 +180,9 @@
 
                                     <div class="callout callout-info mt-3">
                                         <h5><i class="icon fas fa-lightbulb"></i> Tips Dark Mode:</h5>
-                                        <p>Klik tombol floating di kanan bawah layar (icon bulan/matahari) untuk beralih antara mode terang dan gelap. Preferensi Anda akan tersimpan secara otomatis!</p>
+                                        <p>Klik tombol floating di kanan bawah layar (icon bulan/matahari) untuk beralih
+                                            antara mode terang dan gelap. Preferensi Anda akan tersimpan secara
+                                            otomatis!</p>
                                     </div>
 
                                     <h4 class="mt-4"><i class="fas fa-map-signs"></i> Navigasi Menu</h4>
@@ -180,56 +190,69 @@
                                     <div class="row">
                                         <div class="col-md-6">
                                             <ul class="list-unstyled">
-                                                <li><i class="fas fa-envelope-open-text text-primary"></i> <strong>Surat</strong> - Pengelolaan surat masuk, keluar, dan disposisi</li>
-                                                <li><i class="fas fa-archive text-info"></i> <strong>Arsip</strong> - Akses arsip surat dan dokumen</li>
-                                                <li><i class="fas fa-chart-bar text-success"></i> <strong>Laporan</strong> - Berbagai laporan dan statistik</li>
+                                                <li><i class="fas fa-envelope-open-text text-primary"></i>
+                                                    <strong>Surat</strong> - Pengelolaan surat masuk, keluar, dan
+                                                    disposisi
+                                                </li>
+                                                <li><i class="fas fa-archive text-info"></i> <strong>Arsip</strong> -
+                                                    Akses arsip surat dan dokumen</li>
+                                                <li><i class="fas fa-chart-bar text-success"></i>
+                                                    <strong>Laporan</strong> - Berbagai laporan dan statistik
+                                                </li>
                                             </ul>
                                         </div>
                                         <div class="col-md-6">
                                             <ul class="list-unstyled">
-                                                <li><i class="fas fa-cog text-warning"></i> <strong>Pengaturan</strong> - Konfigurasi sistem dan pengguna</li>
-                                                <li><i class="fas fa-book text-secondary"></i> <strong>Bantuan</strong> - Panduan dan dokumentasi</li>
+                                                <li><i class="fas fa-cog text-warning"></i> <strong>Pengaturan</strong>
+                                                    - Konfigurasi sistem dan pengguna</li>
+                                                <li><i class="fas fa-book text-secondary"></i> <strong>Bantuan</strong>
+                                                    - Panduan dan dokumentasi</li>
                                             </ul>
                                         </div>
                                     </div>
                                 </div>
 
                                 <!-- Tab Panduan Surat -->
-                                <div class="tab-pane fade" id="panduan-surat" role="tabpanel" 
-                                     aria-labelledby="tab-panduan-surat">
+                                <div class="tab-pane fade" id="panduan-surat" role="tabpanel"
+                                    aria-labelledby="tab-panduan-surat">
                                     <h3><i class="fas fa-envelope-open-text text-primary"></i> Pengelolaan Surat</h3>
-                                    
+
                                     <div class="accordion" id="accordionSurat">
                                         <!-- Validasi Surat Masuk -->
                                         <div class="card">
                                             <div class="card-header" id="headingValidasi">
                                                 <h2 class="mb-0">
-                                                    <button class="btn btn-link btn-block text-left" type="button" 
-                                                            data-toggle="collapse" data-target="#collapseValidasi" 
-                                                            aria-expanded="true" aria-controls="collapseValidasi">
-                                                        <i class="fas fa-check-circle text-success"></i> 
+                                                    <button class="btn btn-link btn-block text-left" type="button"
+                                                        data-toggle="collapse" data-target="#collapseValidasi"
+                                                        aria-expanded="true" aria-controls="collapseValidasi">
+                                                        <i class="fas fa-check-circle text-success"></i>
                                                         <strong>1. Validasi Surat Masuk</strong>
                                                     </button>
                                                 </h2>
                                             </div>
-                                            <div id="collapseValidasi" class="collapse show" 
-                                                 aria-labelledby="headingValidasi" data-parent="#accordionSurat">
+                                            <div id="collapseValidasi" class="collapse show"
+                                                aria-labelledby="headingValidasi" data-parent="#accordionSurat">
                                                 <div class="card-body">
                                                     <h5>Cara Memvalidasi Surat Masuk:</h5>
                                                     <ol>
                                                         <li>Buka menu <strong>Surat > Validasi Surat Masuk</strong></li>
                                                         <li>Akan muncul daftar surat yang perlu divalidasi</li>
                                                         <li>Klik pada surat untuk melihat detail</li>
-                                                        <li>Periksa kelengkapan data surat (nomor, pengirim, perihal, dll)</li>
-                                                        <li>Tekan tombol <span class="badge badge-success">Validasi</span> 
-                                                            untuk menyetujui atau <span class="badge badge-danger">Tolak</span> 
+                                                        <li>Periksa kelengkapan data surat (nomor, pengirim, perihal,
+                                                            dll)</li>
+                                                        <li>Tekan tombol <span
+                                                                class="badge badge-success">Validasi</span>
+                                                            untuk menyetujui atau <span
+                                                                class="badge badge-danger">Tolak</span>
                                                             jika ada kesalahan</li>
-                                                        <li>Surat yang telah divalidasi akan masuk ke Register Surat Masuk</li>
+                                                        <li>Surat yang telah divalidasi akan masuk ke Register Surat
+                                                            Masuk</li>
                                                     </ol>
                                                     <div class="callout callout-warning">
                                                         <h5>Penting!</h5>
-                                                        <p>Pastikan semua data sudah benar sebelum memvalidasi. 
-                                                           Surat yang sudah divalidasi akan diteruskan ke pejabat terkait.</p>
+                                                        <p>Pastikan semua data sudah benar sebelum memvalidasi.
+                                                            Surat yang sudah divalidasi akan diteruskan ke pejabat
+                                                            terkait.</p>
                                                     </div>
                                                 </div>
                                             </div>
@@ -239,23 +262,23 @@
                                         <div class="card">
                                             <div class="card-header" id="headingSuratMasuk">
                                                 <h2 class="mb-0">
-                                                    <button class="btn btn-link btn-block text-left collapsed" 
-                                                            type="button" data-toggle="collapse" 
-                                                            data-target="#collapseSuratMasuk" 
-                                                            aria-expanded="false" aria-controls="collapseSuratMasuk">
-                                                        <i class="fas fa-inbox text-info"></i> 
+                                                    <button class="btn btn-link btn-block text-left collapsed"
+                                                        type="button" data-toggle="collapse"
+                                                        data-target="#collapseSuratMasuk" aria-expanded="false"
+                                                        aria-controls="collapseSuratMasuk">
+                                                        <i class="fas fa-inbox text-info"></i>
                                                         <strong>2. Mengelola Surat Masuk</strong>
                                                     </button>
                                                 </h2>
                                             </div>
-                                            <div id="collapseSuratMasuk" class="collapse" 
-                                                 aria-labelledby="headingSuratMasuk" data-parent="#accordionSurat">
+                                            <div id="collapseSuratMasuk" class="collapse"
+                                                aria-labelledby="headingSuratMasuk" data-parent="#accordionSurat">
                                                 <div class="card-body">
                                                     <h5>Cara Menambah Surat Masuk:</h5>
                                                     <ol>
                                                         <li>Buka halaman <strong>Arsip > Arsip Surat Masuk</strong></li>
                                                         <li>Klik tombol <span class="badge badge-primary">
-                                                            <i class="fas fa-plus"></i> Tambah Surat</span></li>
+                                                                <i class="fas fa-plus"></i> Tambah Surat</span></li>
                                                         <li>Isi form dengan data:
                                                             <ul>
                                                                 <li>Nomor Agenda (otomatis atau manual)</li>
@@ -272,12 +295,16 @@
 
                                                     <h5 class="mt-3">Cara Melihat Detail Surat:</h5>
                                                     <ol>
-                                                        <li>Dari daftar surat, klik pada baris surat yang ingin dilihat</li>
+                                                        <li>Dari daftar surat, klik pada baris surat yang ingin dilihat
+                                                        </li>
                                                         <li>Modal detail akan muncul dengan 3 tab:
                                                             <ul>
-                                                                <li><strong>Data Surat:</strong> Informasi lengkap surat</li>
-                                                                <li><strong>Progres Surat:</strong> Status dan tindakan</li>
-                                                                <li><strong>Riwayat Disposisi:</strong> Daftar disposisi</li>
+                                                                <li><strong>Data Surat:</strong> Informasi lengkap surat
+                                                                </li>
+                                                                <li><strong>Progres Surat:</strong> Status dan tindakan
+                                                                </li>
+                                                                <li><strong>Riwayat Disposisi:</strong> Daftar disposisi
+                                                                </li>
                                                             </ul>
                                                         </li>
                                                     </ol>
@@ -289,23 +316,24 @@
                                         <div class="card">
                                             <div class="card-header" id="headingDisposisi">
                                                 <h2 class="mb-0">
-                                                    <button class="btn btn-link btn-block text-left collapsed" 
-                                                            type="button" data-toggle="collapse" 
-                                                            data-target="#collapseDisposisi" 
-                                                            aria-expanded="false" aria-controls="collapseDisposisi">
-                                                        <i class="fas fa-paper-plane text-warning"></i> 
+                                                    <button class="btn btn-link btn-block text-left collapsed"
+                                                        type="button" data-toggle="collapse"
+                                                        data-target="#collapseDisposisi" aria-expanded="false"
+                                                        aria-controls="collapseDisposisi">
+                                                        <i class="fas fa-paper-plane text-warning"></i>
                                                         <strong>3. Membuat Disposisi</strong>
                                                     </button>
                                                 </h2>
                                             </div>
-                                            <div id="collapseDisposisi" class="collapse" 
-                                                 aria-labelledby="headingDisposisi" data-parent="#accordionSurat">
+                                            <div id="collapseDisposisi" class="collapse"
+                                                aria-labelledby="headingDisposisi" data-parent="#accordionSurat">
                                                 <div class="card-body">
                                                     <h5>Cara Membuat Disposisi:</h5>
                                                     <ol>
                                                         <li>Buka surat yang akan didisposisi</li>
-                                                        <li>Pada tab <strong>Progres Surat</strong>, 
-                                                            klik tombol <span class="badge badge-success">Tambah</span></li>
+                                                        <li>Pada tab <strong>Progres Surat</strong>,
+                                                            klik tombol <span class="badge badge-success">Tambah</span>
+                                                        </li>
                                                         <li>Pilih jenis pelaksanaan: <strong>Disposisi</strong></li>
                                                         <li>Pilih pejabat/jabatan tujuan disposisi</li>
                                                         <li>Isi catatan/instruksi disposisi</li>
@@ -316,7 +344,8 @@
                                                     <ol>
                                                         <li>Buka detail surat</li>
                                                         <li>Pada tab <strong>Riwayat Disposisi</strong></li>
-                                                        <li>Klik tombol <span class="badge badge-success">Lembar Disposisi</span></li>
+                                                        <li>Klik tombol <span class="badge badge-success">Lembar
+                                                                Disposisi</span></li>
                                                         <li>File PDF akan terbuka di tab baru dan siap dicetak</li>
                                                     </ol>
                                                 </div>
@@ -326,10 +355,10 @@
                                 </div>
 
                                 <!-- Tab Panduan Arsip -->
-                                <div class="tab-pane fade" id="panduan-arsip" role="tabpanel" 
-                                     aria-labelledby="tab-panduan-arsip">
+                                <div class="tab-pane fade" id="panduan-arsip" role="tabpanel"
+                                    aria-labelledby="tab-panduan-arsip">
                                     <h3><i class="fas fa-archive text-primary"></i> Pengelolaan Arsip</h3>
-                                    
+
                                     <div class="card card-info">
                                         <div class="card-header">
                                             <h3 class="card-title">
@@ -337,20 +366,28 @@
                                             </h3>
                                         </div>
                                         <div class="card-body">
-                                            <p>Menu ini menampilkan semua arsip surat masuk yang telah tersimpan dalam sistem.</p>
+                                            <p>Menu ini menampilkan semua arsip surat masuk yang telah tersimpan dalam
+                                                sistem.</p>
                                             <h5>Fitur yang tersedia:</h5>
                                             <ul>
-                                                <li><i class="fas fa-search text-info"></i> Pencarian surat berdasarkan nomor, pengirim, atau perihal</li>
-                                                <li><i class="fas fa-filter text-info"></i> Filter berdasarkan tanggal</li>
-                                                <li><i class="fas fa-eye text-info"></i> Melihat detail dan dokumen surat</li>
-                                                <li><i class="fas fa-edit text-warning"></i> Edit data surat (untuk admin/penelaah)</li>
-                                                <li><i class="fas fa-trash text-danger"></i> Hapus surat (untuk admin)</li>
-                                                <li><i class="fas fa-download text-success"></i> Unduh dokumen surat</li>
+                                                <li><i class="fas fa-search text-info"></i> Pencarian surat berdasarkan
+                                                    nomor, pengirim, atau perihal</li>
+                                                <li><i class="fas fa-filter text-info"></i> Filter berdasarkan tanggal
+                                                </li>
+                                                <li><i class="fas fa-eye text-info"></i> Melihat detail dan dokumen
+                                                    surat</li>
+                                                <li><i class="fas fa-edit text-warning"></i> Edit data surat (untuk
+                                                    admin/penelaah)</li>
+                                                <li><i class="fas fa-trash text-danger"></i> Hapus surat (untuk admin)
+                                                </li>
+                                                <li><i class="fas fa-download text-success"></i> Unduh dokumen surat
+                                                </li>
                                             </ul>
 
                                             <div class="callout callout-info">
                                                 <h5><i class="icon fas fa-info"></i> Tips:</h5>
-                                                Gunakan fitur DataTables untuk sorting, searching, dan export data ke Excel/PDF.
+                                                Gunakan fitur DataTables untuk sorting, searching, dan export data ke
+                                                Excel/PDF.
                                             </div>
                                         </div>
                                     </div>
@@ -380,6 +417,112 @@
                                     </div>
                                 </div>
 
+                                <!-- Tab Panduan Nomor Surat -->
+                                <div class="tab-pane fade" id="panduan-nomor-surat" role="tabpanel"
+                                    aria-labelledby="tab-panduan-nomor-surat">
+                                    <h3><i class="fas fa-archive text-primary"></i> Pengelolaan Nomor Surat</h3>
+
+                                    <div class="card card-danger">
+                                        <div class="card-header">
+                                            <h3 class="card-title">
+                                                <i class="fas fa-list-ol"></i> Arsip Nomor Surat
+                                            </h3>
+                                        </div>
+                                        <div class="card-body">
+                                            <p>Menu untuk mengambil dan mengelola nomor surat keluar secara mandiri.</p>
+
+                                            <div class="callout callout-success">
+                                                <h5><i class="icon fas fa-users"></i> Akses Terbuka:</h5>
+                                                Pengambilan nomor surat dapat dilakukan oleh <strong>semua
+                                                    pengguna</strong>
+                                                tanpa batasan peran. Nomor surat akan otomatis diterbitkan saat Anda
+                                                menyimpan.
+                                            </div>
+
+                                            <h5><i class="fas fa-keyboard"></i> Cara Mengambil Nomor Surat:</h5>
+                                            <ol>
+                                                <li>Buka menu <strong>Arsip > Arsip Nomor Surat</strong></li>
+                                                <li>Pilih tab sesuai jabatan surat yang akan dibuat:
+                                                    <ul>
+                                                        <li><strong>Nomor Surat Ketua</strong> — untuk surat keluar atas
+                                                            nama Ketua</li>
+                                                        <li><strong>Nomor Surat Panitera</strong> — untuk surat keluar
+                                                            atas nama Panitera</li>
+                                                        <li><strong>Nomor Surat Sekretaris</strong> — untuk surat keluar
+                                                            atas nama Sekretaris</li>
+                                                    </ul>
+                                                </li>
+                                                <li>Klik tombol <span class="badge badge-primary">
+                                                        <i class="fas fa-plus"></i> Tambah Nomor Surat</span></li>
+                                                <li>Isi data pada form:
+                                                    <ul>
+                                                        <li><strong>Tujuan Surat</strong> *(wajib)* —
+                                                            instansi/organisasi tujuan,
+                                                            contoh: "Mahkamah Agung", "Ditjen Badilag"</li>
+                                                        <li><strong>Perihal</strong> *(wajib)* — isi pokok surat,
+                                                            contoh: "Pengantar Berkas Banding"</li>
+                                                        <li><strong>Jenis Surat</strong> *(wajib)* — pilih dari daftar
+                                                            jenis surat
+                                                            yang tersedia (otomatis menentukan kode penetapan)</li>
+                                                        <li><strong>Klasifikasi Surat</strong> *(wajib)* — pilih dari
+                                                            daftar klasifikasi
+                                                            surat yang tersedia</li>
+                                                    </ul>
+                                                </li>
+                                                <li>Klik <strong>Simpan</strong></li>
+                                                <li>Sistem akan otomatis menerbitkan nomor surat dan menampilkan
+                                                    <span class="badge badge-success">Nomor Surat Anda</span>
+                                                    pada pesan sukses
+                                                </li>
+                                            </ol>
+
+                                            <div class="callout callout-info">
+                                                <h5><i class="icon fas fa-hashtag"></i> Format Nomor Surat:</h5>
+                                                <p>Nomor surat digenerate secara otomatis dengan format:</p>
+                                                <pre class="bg-light p-2 rounded" style="font-size: 0.9rem;">NomorUrut/KodeJabatan/KodePenetapan/KodeKlasifikasi/BulanRoman/Tahun
+Contoh: 045/KMS.01/P.01/RA/I/2026
+                                                </pre>
+                                                <p class="text-muted small">
+                                                    KodeJabatan: KMS (Ketua), WKMS (Wakil Ketua),
+                                                    PAN.MS (Panitera), SEK.MS (Sekretaris) — diikuti kode satker
+                                                </p>
+                                            </div>
+
+                                            <h5 class="mt-3"><i class="fas fa-search"></i> Cara Melihat Nomor Surat yang
+                                                Sudah Diambil:</h5>
+                                            <ol>
+                                                <li>Pada tabel di halaman Arsip Nomor Surat, gunakan fitur
+                                                    <strong>search</strong> untuk mencari berdasarkan tujuan surat atau
+                                                    perihal
+                                                </li>
+                                                <li>Klik tombol <span class="badge badge-info">
+                                                        <i class="fas fa-eye"></i> Lihat</span>
+                                                    pada baris yang ingin dilihat untuk membuka detail nomor surat</li>
+                                            </ol>
+
+                                            <h5 class="mt-3"><i class="fas fa-user-shield"></i> Hak Edit dan Hapus:</h5>
+                                            <div class="callout callout-warning">
+                                                <h5><i class="icon fas fa-lock"></i> Terbatas untuk Admin & Penelaah:
+                                                </h5>
+                                                <ul>
+                                                    <li>Tombol <span class="badge badge-warning">
+                                                            <i class="fas fa-edit"></i> Edit</span> hanya
+                                                        muncul untuk pengguna berrole <strong>Admin</strong> atau
+                                                        <strong>Penelaah</strong>
+                                                    </li>
+                                                    <li>Tombol <span class="badge badge-danger">
+                                                            <i class="fas fa-trash"></i> Hapus</span> hanya
+                                                        muncul untuk pengguna berrole <strong>Admin</strong> atau
+                                                        <strong>Penelaah</strong>
+                                                    </li>
+                                                    <li>Pengguna biasa hanya dapat <strong>menambah</strong> dan
+                                                        <strong>melihat</strong> nomor surat
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -438,25 +581,33 @@
                         <div class="card-body">
                             <dl>
                                 <dt>Q: Bagaimana cara mengubah nomor agenda otomatis ke manual?</dt>
-                                <dd>A: Pada form input surat, centang checkbox "Ubah Nomor Agenda" untuk mengaktifkan input manual.</dd>
-                                
+                                <dd>A: Pada form input surat, centang checkbox "Ubah Nomor Agenda" untuk mengaktifkan
+                                    input manual.</dd>
+
                                 <dt class="mt-3">Q: Format file apa yang bisa diupload?</dt>
                                 <dd>A: Saat ini sistem mendukung file PDF untuk dokumen surat.</dd>
-                                
+
                                 <dt class="mt-3">Q: Bagaimana cara mengaktifkan Dark Mode?</dt>
-                                <dd>A: Klik tombol floating berbentuk lingkungan di kanan bawah layar. Icon bulan untuk mode gelap, icon matahari untuk kembali ke mode terang. Preferensi akan tersimpan otomatis.</dd>
-                                
+                                <dd>A: Klik tombol floating berbentuk lingkungan di kanan bawah layar. Icon bulan untuk
+                                    mode gelap, icon matahari untuk kembali ke mode terang. Preferensi akan tersimpan
+                                    otomatis.</dd>
+
                                 <dt class="mt-3">Q: Bagaimana jika lupa password?</dt>
-                                <dd>A: Hubungi administrator sistem atau gunakan fitur reset password di halaman login SSO.</dd>
-                                
+                                <dd>A: Hubungi administrator sistem atau gunakan fitur reset password di halaman login
+                                    SSO.</dd>
+
                                 <dt class="mt-3">Q: Apakah bisa menghapus surat yang sudah divalidasi?</dt>
-                                <dd>A: Hanya admin yang memiliki hak akses untuk menghapus surat yang sudah divalidasi.</dd>
-                                
+                                <dd>A: Hanya admin yang memiliki hak akses untuk menghapus surat yang sudah divalidasi.
+                                </dd>
+
                                 <dt class="mt-3">Q: Bagaimana cara melihat riwayat perubahan surat?</dt>
-                                <dd>A: Buka detail surat, lalu pilih tab "Progres Surat" untuk melihat semua riwayat perubahan.</dd>
-                                
+                                <dd>A: Buka detail surat, lalu pilih tab "Progres Surat" untuk melihat semua riwayat
+                                    perubahan.</dd>
+
                                 <dt class="mt-3">Q: Apa arti icon dan warna di menu?</dt>
-                                <dd>A: Setiap menu memiliki icon unik untuk memudahkan identifikasi. Warna berbeda pada submenu membantu membedakan fungsi (biru untuk surat masuk, hijau untuk dokumen selesai, kuning untuk perlu tindakan, dll).</dd>
+                                <dd>A: Setiap menu memiliki icon unik untuk memudahkan identifikasi. Warna berbeda pada
+                                    submenu membantu membedakan fungsi (biru untuk surat masuk, hijau untuk dokumen
+                                    selesai, kuning untuk perlu tindakan, dll).</dd>
                             </dl>
                         </div>
                     </div>
@@ -506,4 +657,3 @@
         </div>
     </section>
 </div>
-

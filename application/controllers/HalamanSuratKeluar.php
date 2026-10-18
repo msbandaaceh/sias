@@ -47,26 +47,14 @@ class HalamanSuratKeluar extends MY_Controller
 
     public function get_pensign_template()
     {
-        $template_id = (int) $this->input->post('template_id');
-
-        if (!$template_id) {
-            header('Content-Type: application/json');
-            echo json_encode(['success' => false, 'message' => 'Template ID required']);
-            return;
-        }
-
-        $template_row = $this->model->get_template_surat_by_id($template_id);
-        if (!$template_row) {
-            header('Content-Type: application/json');
-            echo json_encode(['success' => false, 'message' => 'Template tidak ditemukan']);
-            return;
-        }
-
+        $respon = $this->model->get_pensign_template();
+        
         header('Content-Type: application/json');
         echo json_encode([
-            'success' => true,
+            'success' => $respon['hasil'],
+            'pesan' => $respon['pesan'],
             'data' => [
-                'body_surat' => $template_row->isi_template ?? '',
+                'body_surat' => $respon['data']->isi_template ?? '',
             ]
         ]);
     }

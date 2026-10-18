@@ -1860,4 +1860,33 @@ class ModelSias extends CI_Model
         $this->db->order_by('nama_template', 'ASC');
         return $this->db->get('template_surat')->result();
     }
+
+    public function get_pensign_template()
+    {
+        $template_id = (int) $this->input->post('template_id');
+
+        if (!$template_id) {
+            return ['hasil' => false, 'pesan' => 'Template ID required', 'data' => null];
+        }
+
+        $template_row = $this->get_template_surat_by_id($template_id);
+        if (!$template_row) {
+            return ['hasil' => false, 'pesan' => 'Template tidak ditemukan', 'data' => null];
+        }
+
+        $sk_id = $this->input->post('sk_id');
+        $data = [
+            'template_id' => $template_id,
+            'jenis_surat' => $this->input->post('jenis'),
+            'isi_surat' => $template_row->isi_template
+        ];
+
+        $hasil = $this->pembaharuan_data('register_surat_keluar', $data, 'id', $sk_id);
+        if ($hasil) {
+            return ['hasil' => true, 'pesan' => 'Berhasil Mengambil Template Surat', 'data' => $template_row];
+        } else {
+            return ['hasil' => false, 'pesan' => 'Gagal Menyimpan Template ke data Isi Surat Keluar', 'data' => null];
+        }
+
+    }
 }

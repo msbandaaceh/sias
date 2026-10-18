@@ -30,10 +30,6 @@ function loadPreview(id) {
                     $('#lokasi_surat').val(d.lokasi_surat);
                 }
 
-                if (d.template_id > 0) {
-                    document.getElementById('toolbar_surat').style.display = 'block';
-                }
-
             } else {
                 toastr.error(res.message || 'Gagal memuat data surat keluar');
                 $('#editor-overlay').hide();
@@ -119,6 +115,7 @@ function PilihJenisSurat(sk_id) {
         dataType: 'json',
         success: function (res) {
             if (res.success) {
+                document.getElementById('toolbar_surat').style.display = 'none';
                 $('#jenis_template_').html('');
                 $('#jenis_template_').append(res.selected_template);
                 $('#select_template').select2({ theme: 'bootstrap4', width: '100%', placeholder: 'Pilih Template' });
@@ -150,17 +147,22 @@ function PilihTemplateSurat() {
 }
 
 function loadNewTemplate(tid) {
+    var sk_id = $('#record_id').val();
+    var jenis = $('#jenis_surat').val();
+
     $.ajax({
         url: 'get_pensign_template',
         type: 'POST',
-        data: { template_id: tid },
+        data: { sk_id: sk_id, jenis: jenis, template_id: tid },
         dataType: 'json',
         success: function (res) {
             if (res.success) {
-                currentTemplate = res.data;
-                //$('#toolbar_surat').show();
+                Swal.fire("Berhasil!", res.pesan, "success");
+                document.getElementById('toolbar_surat').style.display = 'block';
                 // In edit mode, load the saved content; otherwise load the raw template
                 updatePreview(res.data);
+            } else {
+                Swal.fire("Gagal", res.pesan, "error");
             }
         }
     });
@@ -316,6 +318,10 @@ function updatePreview(d) {
     };
 
     var paper = paperConfig[paperType] || paperConfig.A4;
+
+    if (d.template_id > 0) {
+        document.getElementById('toolbar_surat').style.display = 'block';
+    }
 
     if (d.lokasi_surat) {
         processed = processed.replace(/#0002#/g, d.lokasi_surat);

@@ -1,5 +1,5 @@
 $(function () {
-    $(document).on('submit', '#formSK', function (e) {
+    $(document).off('submit', '#formSK').on('submit', '#formSK', function (e) {
         e.preventDefault();
         let form = this;
         let formData = new FormData(form);
@@ -209,4 +209,8 @@ function formatDateTime(dt) {
     var parts = dt.split(' ');
     if (parts.length < 2) return dt;
     return formatDateID(parts[0]) + ' ' + parts[1];
+}
+
+function ModalSuratKeluar() {
+    $('#modalSuratKeluar').modal('show');
 }

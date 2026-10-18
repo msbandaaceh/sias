@@ -49,12 +49,9 @@
     <div class="modal fade" id="modalSuratKeluar" data-backdrop="static">
         <div class="modal-dialog modal-lg">
             <div class="card card-default">
-                <div class="overlay" id="overlay">
-                    <i class="fas fa-2x fa-sync fa-spin"></i>
-                </div>
-                <form method="POST" id="formSK" class="modal-content">
+                <form id="formSK" class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="judul"></h5>
+                        <h5 class="modal-title" id="judul">Tambah Data Surat Keluar</h5>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
