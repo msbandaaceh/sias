@@ -873,7 +873,7 @@ class ModelSias extends CI_Model
         }
 
         $dokumen = !empty($surat->file)
-            ? '<iframe src="' . base_url('assets/pdfjs/web/viewer.html?file=' . base_url('assets/dokumen/' . $surat->file)) . '" width="100%" height="640"></iframe>'
+            ? $this->pdf_viewer_url($surat->file)
             : '<object id="pdf" height="1024px" width="100%" type="application/pdf"><span align="center">Dokumen Elektronik Tidak Tersedia</span></object>';
 
         return [
@@ -890,6 +890,28 @@ class ModelSias extends CI_Model
             'dokumen' => $dokumen,
             'tab_dispo' => $tab_dispo
         ];
+    }
+
+    /**
+     * Bangun URL viewer PDF.js dengan param `file` ABSOLUT.
+     * PDF.js me-resolve param `file` relatif terhadap direktori viewer.html
+     * (asets/pdfjs/web/), sehingga param relatif akan menghasilkan path ganda
+     * (asets/pdfjs/web/asets/dokumen/…) dan gagal 404. URL absolut bebas dari
+     * masalah itu karena new URL(…) langsung mengembalikan URL tersebut.
+     * Merapikan juga nama file yg mungkin sudah/sedang menyimpan prefix asets/.
+     */
+    private function pdf_viewer_url($file)
+    {
+        $file = ltrim((string) $file, '/');
+        if (strpos($file, 'asets/') === 0) {
+            $rel = $file;
+        } else {
+            $rel = 'assets/dokumen/' . $file;
+        }
+        // base_url() di app ini selalu berakhir '/'; ambil prefix domain+path
+        $prefix = rtrim(base_url(), '/');
+        $url = $prefix . '/' . $rel;
+        return '<iframe src="' . $prefix . '/assets/pdfjs/web/viewer.html?file=' . urlencode($url) . '" width="100%" height="640"></iframe>';
     }
 
     public function get_seleksi($tabel, $kolom_seleksi, $seleksi)
