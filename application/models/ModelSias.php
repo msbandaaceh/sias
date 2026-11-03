@@ -872,9 +872,17 @@ class ModelSias extends CI_Model
             }
         }
 
-        $dokumen = !empty($surat->file)
-            ? '<iframe src="' . base_url('assets/pdfjs/web/viewer.html?file=' . base_url('assets/dokumen/' . $surat->file)) . '" width="100%" height="640"></iframe>'
-            : '<object id="pdf" height="1024px" width="100%" type="application/pdf"><span align="center">Dokumen Elektronik Tidak Tersedia</span></object>';
+        $pdf_url = base_url('assets/dokumen/' . $surat->file);
+
+        $dokumen = '
+            <iframe 
+                src="https://docs.google.com/gview?url=' . $pdf_url . '&embedded=true" 
+                width="100%" 
+                height="900px" 
+                style="border:none;">
+            </iframe>
+            <p style="text-align:center;"><a href="' . $pdf_url . '" target="_blank">Buka PDF Asli</a></p>
+            ';
 
         return [
             'st' => 1,
