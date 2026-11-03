@@ -38,7 +38,7 @@ class MY_Controller extends CI_Controller
             }
         }
 
-        if ($this->session->userdata('sias_logged_in')) {
+        if (!$this->session->userdata('sias_logged_in')) {
             # Cek Data Pengguna dan Periksa apakah user login sebagai plh/plt atau bukan
             if (!$this->session->userdata('status_plh')) {
                 if (!$this->session->userdata('status_plt')) {
