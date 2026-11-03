@@ -38,45 +38,49 @@ class MY_Controller extends CI_Controller
             }
         }
 
-        # Cek Data Pengguna dan Periksa apakah user login sebagai plh/plt atau bukan
-        if (!$this->session->userdata('status_plh')) {
-            if (!$this->session->userdata('status_plt')) {
-                $params = [
-                    'tabel' => 'v_users',
-                    'kolom_seleksi' => 'userid',
-                    'seleksi' => $this->session->userdata("userid")
-                ];
+        if ($this->session->userdata('sias_logged_in')) {
+            # Cek Data Pengguna dan Periksa apakah user login sebagai plh/plt atau bukan
+            if (!$this->session->userdata('status_plh')) {
+                if (!$this->session->userdata('status_plt')) {
+                    $params = [
+                        'tabel' => 'v_users',
+                        'kolom_seleksi' => 'userid',
+                        'seleksi' => $this->session->userdata("userid")
+                    ];
 
-                $result = $this->apihelper->get('apiclient/get_data_seleksi', $params);
+                    $result = $this->apihelper->get('apiclient/get_data_seleksi', $params);
 
-                if ($result['status_code'] === 200 && $result['response']['status'] === 'success') {
-                    $user_data = $result['response']['data'][0];
-                    $this->session->set_userdata('pegawai_id', $user_data['pegawai_id']);
-                    $this->session->set_userdata('jabatan', $user_data['jabatan']);
+                    if ($result['status_code'] === 200 && $result['response']['status'] === 'success') {
+                        $user_data = $result['response']['data'][0];
+                        $this->session->set_userdata('pegawai_id', $user_data['pegawai_id']);
+                        $this->session->set_userdata('jabatan', $user_data['jabatan']);
+                    }
                 }
             }
-        }
 
-        # Cek Data Aplikasi Ini
-        $this->model->cek_aplikasi($this->config->item('id_app'));
+            # Cek Data Aplikasi Ini
+            $this->model->cek_aplikasi($this->config->item('id_app'));
 
-        # Cek peran pegawai
-        if (in_array($this->session->userdata('role'), ['super', 'admin_satker']) || $this->session->userdata('jab_id') == '4') {
-            $this->session->set_userdata('peran', 'admin');
-        } else if ($this->session->userdata('role') == 'validator_uk_satker') {
-            $this->session->set_userdata('peran', 'penelaah');
-        } else if (in_array($this->session->userdata('jab_id'), ['1', '6', '7', '8', '9', '11', '12'])) {
-            $this->session->set_userdata('peran', 'pejabat');
-        } else {
-            $query = $this->model->get_seleksi2('peran', 'userid', $this->session->userdata('userid'), 'hapus', '0');
-            if ($query->num_rows() > 0) {
-                $this->session->set_userdata('peran', $query->row()->role);
+            # Cek peran pegawai
+            if (in_array($this->session->userdata('role'), ['super', 'admin_satker']) || $this->session->userdata('jab_id') == '4') {
+                $this->session->set_userdata('peran', 'admin');
+            } else if ($this->session->userdata('role') == 'validator_uk_satker') {
+                $this->session->set_userdata('peran', 'penelaah');
+            } else if (in_array($this->session->userdata('jab_id'), ['1', '6', '7', '8', '9', '11', '12'])) {
+                $this->session->set_userdata('peran', 'pejabat');
             } else {
-                $this->session->set_userdata('peran', '');
+                $query = $this->model->get_seleksi2('peran', 'userid', $this->session->userdata('userid'), 'hapus', '0');
+                if ($query->num_rows() > 0) {
+                    $this->session->set_userdata('peran', $query->row()->role);
+                } else {
+                    $this->session->set_userdata('peran', '');
+                }
             }
-        }
 
+            $this->session->set_userdata('sias_logged_in', TRUE);
+        }
         $this->session->set_userdata('logged_in', TRUE);
+        session_write_close();
     }
 
     protected function cek_token($token)
